@@ -8,4 +8,6 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 add_compile_options(-Wall -Wextra -Wpedantic)
 
+include_directories(src)
+
 add_subdirectory(src)
