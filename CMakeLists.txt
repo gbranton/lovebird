@@ -16,6 +16,7 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(googletest)
 
+include(GoogleTest)
 enable_testing()
 
 include_directories(src)

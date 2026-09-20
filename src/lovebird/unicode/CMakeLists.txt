@@ -3,3 +3,5 @@ target_sources(
     PRIVATE
         utf8.cpp
 )
+
+add_subdirectory(test)
