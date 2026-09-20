@@ -19,10 +19,13 @@ public:
 
     Utf8Iterator() = default;
 
-    Utf8Iterator(const char* ptr, const char* end) : ptr_{ptr}, end_{end} {
+    Utf8Iterator(const char* ptr, const char* end)
+        : ptr_{ptr},
+          end_{end} {
     }
 
-    Utf8Iterator(const char* ptr) : Utf8Iterator{ptr, ptr} {
+    Utf8Iterator(const char* ptr)
+        : Utf8Iterator{ptr, ptr} {
     }
 
     Utf8Iterator(std::string_view sv)

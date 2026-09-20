@@ -24,14 +24,17 @@ public:
 
     SourceIterator() = default;
 
-    SourceIterator(std::string_view sv) : it_{sv} {
+    SourceIterator(std::string_view sv)
+        : it_{sv} {
     }
 
     SourceIterator(std::string_view sv, SourcePosition pos)
-        : it_{sv}, pos_{pos} {
+        : it_{sv},
+          pos_{pos} {
     }
 
-    SourceIterator(const char* ptr) : it_{ptr} {
+    SourceIterator(const char* ptr)
+        : it_{ptr} {
     }
 
     SourceIterator(const SourceIterator&) = default;
