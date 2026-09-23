@@ -49,6 +49,10 @@ public:
         return it_.ptr();
     }
 
+    SourcePosition pos() const {
+        return pos_;
+    }
+
     SourceIterator& operator++() {
         const char* before = ptr();
         bool newline = *it_ == '\n';
