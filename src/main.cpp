@@ -1,6 +1,6 @@
 #include <print>
 
-#include "lovebird/source_position.hpp"
+#include "lovebird/source/source_position.hpp"
 
 using namespace lovebird;
 

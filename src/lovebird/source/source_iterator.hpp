@@ -6,7 +6,7 @@
 #include <string_view>
 
 #include "lovebird/runtime/builtin.hpp"
-#include "lovebird/source_position.hpp"
+#include "lovebird/source/source_position.hpp"
 #include "lovebird/unicode/utf8_iterator.hpp"
 
 namespace lovebird {

@@ -7,7 +7,7 @@
 #include <string>
 #include <vector>
 
-#include "lovebird/source_position.hpp"
+#include "lovebird/source/source_position.hpp"
 
 namespace lovebird {
 

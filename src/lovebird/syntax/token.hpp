@@ -4,7 +4,7 @@
 #include <format>
 #include <string_view>
 
-#include "lovebird/source_position.hpp"
+#include "lovebird/source/source_position.hpp"
 
 namespace lovebird {
 
