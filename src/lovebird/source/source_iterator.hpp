@@ -1,5 +1,5 @@
-#ifndef LOVEBIRD_LEXER_SOURCE_ITERATOR_HPP
-#define LOVEBIRD_LEXER_SOURCE_ITERATOR_HPP
+#ifndef LOVEBIRD_SOURCE_SOURCE_ITERATOR_HPP
+#define LOVEBIRD_SOURCE_SOURCE_ITERATOR_HPP
 
 #include <cstddef>
 #include <iterator>
@@ -101,4 +101,4 @@ static_assert(std::forward_iterator<SourceIterator>);
 
 }  // namespace lovebird
 
-#endif  // ifndef LOVEBIRD_LEXER_SOURCE_ITERATOR_HPP
+#endif  // ifndef LOVEBIRD_SOURCE_SOURCE_ITERATOR_HPP

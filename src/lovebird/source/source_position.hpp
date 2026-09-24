@@ -1,5 +1,5 @@
-#ifndef LOVEBIRD_SOURCE_POSITION_HPP
-#define LOVEBIRD_SOURCE_POSITION_HPP
+#ifndef LOVEBIRD_SOURCE_SOURCE_POSITION_HPP
+#define LOVEBIRD_SOURCE_SOURCE_POSITION_HPP
 
 #include <format>
 
@@ -41,4 +41,4 @@ struct std::formatter<lovebird::SourceSpan> {
     }
 };
 
-#endif  // ifndef LOVEBIRD_SOURCE_POSITION_HPP
+#endif  // ifndef LOVEBIRD_SOURCE_SOURCE_POSITION_HPP
