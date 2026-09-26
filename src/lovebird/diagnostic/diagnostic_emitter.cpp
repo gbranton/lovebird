@@ -22,6 +22,8 @@ void DiagnosticEmitter::emit(const Diagnostic& diagnostic) {
     }
 
     std::format_to(it, " {}\n", diagnostic.message);
+
+    diagnostics_.push_back(diagnostic);
 }
 
 }  // namespace lovebird

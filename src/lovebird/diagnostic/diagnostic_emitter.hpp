@@ -2,10 +2,11 @@
 #define LOVEBIRD_DIAGNOSTIC_DIAGNOSTIC_EMITTER_HPP
 
 #include <iosfwd>
+#include <vector>
+
+#include "lovebird/diagnostic/diagnostic.hpp"
 
 namespace lovebird {
-
-struct Diagnostic;
 
 class DiagnosticEmitter {
 public:
@@ -13,8 +14,13 @@ public:
 
     void emit(const Diagnostic&);
 
+    const std::vector<Diagnostic>& diagnostics() const {
+        return diagnostics_;
+    }
+
 private:
     std::ostream& out_;
+    std::vector<Diagnostic> diagnostics_;
 };
 
 }  // namespace lovebird
