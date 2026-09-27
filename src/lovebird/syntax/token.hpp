@@ -2,6 +2,7 @@
 #define LOVEBIRD_SYNTAX_TOKEN_HPP
 
 #include <format>
+#include <iosfwd>
 #include <string_view>
 
 #include "lovebird/source/source_position.hpp"
@@ -19,6 +20,8 @@ struct Token {
     std::string_view view;
     SourceSpan span;
 };
+
+std::ostream& operator<<(std::ostream&, const Token&);
 
 }  // namespace lovebird
 
