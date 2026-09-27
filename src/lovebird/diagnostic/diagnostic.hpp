@@ -3,6 +3,7 @@
 
 #include <filesystem>
 #include <format>
+#include <iosfwd>
 #include <optional>
 #include <string>
 #include <vector>
@@ -22,6 +23,8 @@ struct Diagnostic {
     std::optional<SourceSpan> span;
     std::vector<Note> notes;
 };
+
+std::ostream& operator<<(std::ostream&, const Diagnostic&);
 
 }  // namespace lovebird
 
