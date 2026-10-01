@@ -9,6 +9,8 @@ namespace lovebird {
 
 std::string_view to_string(TokenKind kind) {
     switch (kind) {
+        case TokenKind::end:
+            return "end of input";
         case TokenKind::name:
             return "name";
     }

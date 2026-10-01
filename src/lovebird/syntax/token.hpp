@@ -10,6 +10,8 @@
 namespace lovebird {
 
 enum class TokenKind {
+    end,  // End of input
+
     name,
 };
 
