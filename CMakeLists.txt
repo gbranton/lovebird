@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 4.4.3)
 
 project(lovebird)
 
-set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_CXX_STANDARD 26)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
