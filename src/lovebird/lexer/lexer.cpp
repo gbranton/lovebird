@@ -8,6 +8,7 @@
 #include "lovebird/diagnostic/diagnostic.hpp"
 #include "lovebird/diagnostic/diagnostic_emitter.hpp"
 #include "lovebird/lexer/chars.hpp"
+#include "lovebird/lexer/keyword_table.hpp"
 #include "lovebird/syntax/token.hpp"
 
 namespace lovebird {
@@ -27,7 +28,7 @@ std::optional<Token> Lexer::lex() {
 
     token_start_ = stream_.iterator();
 
-    if (auto tok = lex_name()) {
+    if (auto tok = lex_name_or_keyword()) {
         return tok;
     }
 
@@ -35,10 +36,14 @@ std::optional<Token> Lexer::lex() {
     return std::nullopt;
 }
 
+std::string_view Lexer::token_view() const {
+    return {token_start_.ptr(), stream_.iterator().ptr()};
+}
+
 Token Lexer::make_token(TokenKind kind) {
     return {
         .kind = kind,
-        .view = {token_start_.ptr(), stream_.iterator().ptr()},
+        .view = token_view(),
         .span =
             {
                 .begin = token_start_.pos(),
@@ -69,12 +74,17 @@ bool Lexer::skip_comment() {
     return true;
 }
 
-std::optional<Token> Lexer::lex_name() {
+std::optional<Token> Lexer::lex_name_or_keyword() {
     if (!stream_.match(is_name_start)) {
         return std::nullopt;
     }
     while (stream_.match(is_name_continue)) {
     }
+
+    if (auto keyword = look_up_keyword(token_view())) {
+        return make_token(*keyword);
+    }
+
     return make_token(TokenKind::name);
 }
 

@@ -3,6 +3,7 @@
 #include <memory>
 #include <span>
 #include <sstream>
+#include <string>
 #include <string_view>
 #include <vector>
 
@@ -11,6 +12,7 @@
 
 #include "lovebird/diagnostic/diagnostic.hpp"
 #include "lovebird/diagnostic/diagnostic_emitter.hpp"
+#include "lovebird/lexer/keyword_table.hpp"
 #include "lovebird/syntax/token.hpp"
 
 namespace lovebird {
@@ -119,6 +121,24 @@ TEST_F(LexerTest, LexNames) {
             .view = "num123",
         },
     };
+    lex_and_expect_tokens(source, tokens);
+    expect_no_diagnostics();
+}
+
+TEST_F(LexerTest, LexKeywords) {
+    std::string source;
+    std::vector<Token> tokens;
+
+    for (const auto& [key, val] : keyword_table) {
+        source += key;
+        source += " ";
+        tokens.push_back({
+            .kind = val,
+            .view = key,
+        });
+    }
+
+    EXPECT_EQ(tokens.size(), 26);
     lex_and_expect_tokens(source, tokens);
     expect_no_diagnostics();
 }

@@ -13,6 +13,33 @@ enum class TokenKind {
     end,  // End of input
 
     name,
+
+    keyword_break,
+    keyword_case,
+    keyword_const,
+    keyword_continue,
+    keyword_default,
+    keyword_else,
+    keyword_embed,
+    keyword_enum,
+    keyword_fn,
+    keyword_for,
+    keyword_if,
+    keyword_impl,
+    keyword_import,
+    keyword_in,
+    keyword_let,
+    keyword_module,
+    keyword_mut,
+    keyword_package,
+    keyword_pub,
+    keyword_return,
+    keyword_self,
+    keyword_struct,
+    keyword_switch,
+    keyword_trait,
+    keyword_type,
+    keyword_unsafe,
 };
 
 std::string_view to_string(TokenKind);

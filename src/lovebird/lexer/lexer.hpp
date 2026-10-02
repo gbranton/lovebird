@@ -25,13 +25,14 @@ private:
     std::shared_ptr<DiagnosticEmitter> diagnostic_emitter_;
     SourceIterator token_start_;
 
+    std::string_view token_view() const;
     Token make_token(TokenKind);
 
     void skip_trivia();
     bool skip_whitespace();
     bool skip_comment();
 
-    std::optional<Token> lex_name();
+    std::optional<Token> lex_name_or_keyword();
 
     void emit_unexpected_char_diagnostic();
 };
