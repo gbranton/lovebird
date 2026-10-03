@@ -31,6 +31,9 @@ std::optional<Token> Lexer::lex() {
     if (auto tok = lex_name_or_keyword()) {
         return tok;
     }
+    if (auto tok = lex_punctuation()) {
+        return tok;
+    }
 
     emit_unexpected_char_diagnostic();
     return std::nullopt;
@@ -86,6 +89,211 @@ std::optional<Token> Lexer::lex_name_or_keyword() {
     }
 
     return make_token(TokenKind::name);
+}
+
+std::optional<Token> Lexer::lex_punctuation() {
+    TokenKind kind;
+    int length = 1;
+
+    switch (*stream_.current()) {
+        case '(':
+            kind = TokenKind::paren_left;
+            break;
+
+        case ')':
+            kind = TokenKind::paren_right;
+            break;
+
+        case '[':
+            kind = TokenKind::bracket_left;
+            break;
+
+        case ']':
+            kind = TokenKind::bracket_right;
+            break;
+
+        case '{':
+            kind = TokenKind::brace_left;
+            break;
+
+        case '}':
+            kind = TokenKind::brace_right;
+            break;
+
+        case '.':
+            kind = TokenKind::period;
+            break;
+
+        case ',':
+            kind = TokenKind::comma;
+            break;
+
+        case ';':
+            kind = TokenKind::semicolon;
+            break;
+
+        case ':':
+            kind = TokenKind::colon;
+            break;
+
+        case '!':
+            if (stream_.peek(1) == '=') {
+                kind = TokenKind::bang_equal;
+                length = 2;
+            } else {
+                kind = TokenKind::bang;
+            }
+            break;
+
+        case '?':
+            kind = TokenKind::question;
+            break;
+
+        case '@':
+            kind = TokenKind::at;
+            break;
+
+        case '#':
+            kind = TokenKind::hash;
+            break;
+
+        case '+':
+            if (stream_.peek(1) == '=') {
+                kind = TokenKind::plus_equal;
+                length = 2;
+            } else {
+                kind = TokenKind::plus;
+            }
+            break;
+
+        case '-':
+            if (stream_.peek(1) == '>') {
+                kind = TokenKind::arrow;
+                length = 2;
+            } else if (stream_.peek(1) == '=') {
+                kind = TokenKind::minus_equal;
+                length = 2;
+            } else {
+                kind = TokenKind::minus;
+            }
+            break;
+
+        case '*':
+            if (stream_.peek(1) == '=') {
+                kind = TokenKind::star_equal;
+                length = 2;
+            } else {
+                kind = TokenKind::star;
+            }
+            break;
+
+        case '/':
+            if (stream_.peek(1) == '=') {
+                kind = TokenKind::slash_equal;
+                length = 2;
+            } else {
+                kind = TokenKind::slash;
+            }
+            break;
+
+        case '%':
+            if (stream_.peek(1) == '=') {
+                kind = TokenKind::percent_equal;
+                length = 2;
+            } else {
+                kind = TokenKind::percent;
+            }
+            break;
+
+        case '=':
+            if (stream_.peek(1) == '=') {
+                kind = TokenKind::equal_equal;
+                length = 2;
+            } else {
+                kind = TokenKind::equal;
+            }
+            break;
+
+        case '~':
+            kind = TokenKind::tilde;
+            break;
+
+        case '&':
+            if (stream_.peek(1) == '=') {
+                kind = TokenKind::ampersand_equal;
+                length = 2;
+            } else if (stream_.peek(1) == '&') {
+                kind = TokenKind::ampersand_ampersand;
+                length = 2;
+            } else {
+                kind = TokenKind::ampersand;
+            }
+            break;
+
+        case '|':
+            if (stream_.peek(1) == '=') {
+                kind = TokenKind::pipe_equal;
+                length = 2;
+            } else if (stream_.peek(1) == '|') {
+                kind = TokenKind::pipe_pipe;
+                length = 2;
+            } else {
+                kind = TokenKind::pipe;
+            }
+            break;
+
+        case '^':
+            if (stream_.peek(1) == '=') {
+                kind = TokenKind::caret_equal;
+                length = 2;
+            } else {
+                kind = TokenKind::caret;
+            }
+            break;
+
+        case '<':
+            if (stream_.peek(1) == '<') {
+                if (stream_.peek(2) == '=') {
+                    kind = TokenKind::less_less_equal;
+                    length = 3;
+                } else {
+                    kind = TokenKind::less_less;
+                    length = 2;
+                }
+            } else if (stream_.peek(1) == '=') {
+                kind = TokenKind::less_equal;
+                length = 2;
+            } else {
+                kind = TokenKind::less;
+            }
+            break;
+
+        case '>':
+            if (stream_.peek(1) == '>') {
+                if (stream_.peek(2) == '=') {
+                    kind = TokenKind::greater_greater_equal;
+                    length = 3;
+                } else {
+                    kind = TokenKind::greater_greater;
+                    length = 2;
+                }
+            } else if (stream_.peek(1) == '=') {
+                kind = TokenKind::greater_equal;
+                length = 2;
+            } else {
+                kind = TokenKind::greater;
+            }
+            break;
+
+        default:
+            return std::nullopt;
+    }
+
+    for (int i = 0; i < length; ++i) {
+        stream_.next();
+    }
+
+    return make_token(kind);
 }
 
 void Lexer::emit_unexpected_char_diagnostic() {

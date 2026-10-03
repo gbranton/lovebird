@@ -85,9 +85,9 @@ TEST_F(LexerTest, SkipTrivia) {
 }
 
 TEST_F(LexerTest, EmitUnexpectedChar) {
-    std::string_view source = "  ~ Hello";
+    std::string_view source = "  $ Hello";
     std::vector<Diagnostic> diagnostics = {
-        {{.message = "unexpected character: U+007E"}}};
+        {{.message = "unexpected character: U+0024"}}};
     lex_and_expect_no_tokens(source);
     expect_diagnostics(diagnostics);
 }
@@ -139,6 +139,67 @@ TEST_F(LexerTest, LexKeywords) {
     }
 
     EXPECT_EQ(tokens.size(), 26);
+    lex_and_expect_tokens(source, tokens);
+    expect_no_diagnostics();
+}
+
+TEST_F(LexerTest, LexPunctuation) {
+    std::string_view source =
+        "() [] {} "
+        ". , ; : ! ? @ # -> "
+        "+ - * / % "
+        "= += -= *= /= %= "
+        "~ & | ^ << >> "
+        "&= |= ^= <<= >>= "
+        "&& || "
+        "== != < <= > >= ";
+    std::vector<Token> tokens = {
+        {.kind = TokenKind::paren_left, .view = "("},
+        {.kind = TokenKind::paren_right, .view = ")"},
+        {.kind = TokenKind::bracket_left, .view = "["},
+        {.kind = TokenKind::bracket_right, .view = "]"},
+        {.kind = TokenKind::brace_left, .view = "{"},
+        {.kind = TokenKind::brace_right, .view = "}"},
+        {.kind = TokenKind::period, .view = "."},
+        {.kind = TokenKind::comma, .view = ","},
+        {.kind = TokenKind::semicolon, .view = ";"},
+        {.kind = TokenKind::colon, .view = ":"},
+        {.kind = TokenKind::bang, .view = "!"},
+        {.kind = TokenKind::question, .view = "?"},
+        {.kind = TokenKind::at, .view = "@"},
+        {.kind = TokenKind::hash, .view = "#"},
+        {.kind = TokenKind::arrow, .view = "->"},
+        {.kind = TokenKind::plus, .view = "+"},
+        {.kind = TokenKind::minus, .view = "-"},
+        {.kind = TokenKind::star, .view = "*"},
+        {.kind = TokenKind::slash, .view = "/"},
+        {.kind = TokenKind::percent, .view = "%"},
+        {.kind = TokenKind::equal, .view = "="},
+        {.kind = TokenKind::plus_equal, .view = "+="},
+        {.kind = TokenKind::minus_equal, .view = "-="},
+        {.kind = TokenKind::star_equal, .view = "*="},
+        {.kind = TokenKind::slash_equal, .view = "/="},
+        {.kind = TokenKind::percent_equal, .view = "%="},
+        {.kind = TokenKind::tilde, .view = "~"},
+        {.kind = TokenKind::ampersand, .view = "&"},
+        {.kind = TokenKind::pipe, .view = "|"},
+        {.kind = TokenKind::caret, .view = "^"},
+        {.kind = TokenKind::less_less, .view = "<<"},
+        {.kind = TokenKind::greater_greater, .view = ">>"},
+        {.kind = TokenKind::ampersand_equal, .view = "&="},
+        {.kind = TokenKind::pipe_equal, .view = "|="},
+        {.kind = TokenKind::caret_equal, .view = "^="},
+        {.kind = TokenKind::less_less_equal, .view = "<<="},
+        {.kind = TokenKind::greater_greater_equal, .view = ">>="},
+        {.kind = TokenKind::ampersand_ampersand, .view = "&&"},
+        {.kind = TokenKind::pipe_pipe, .view = "||"},
+        {.kind = TokenKind::equal_equal, .view = "=="},
+        {.kind = TokenKind::bang_equal, .view = "!="},
+        {.kind = TokenKind::less, .view = "<"},
+        {.kind = TokenKind::less_equal, .view = "<="},
+        {.kind = TokenKind::greater, .view = ">"},
+        {.kind = TokenKind::greater_equal, .view = ">="},
+    };
     lex_and_expect_tokens(source, tokens);
     expect_no_diagnostics();
 }

@@ -14,6 +14,8 @@ enum class TokenKind {
 
     name,
 
+    // Keywords
+
     keyword_break,
     keyword_case,
     keyword_const,
@@ -40,6 +42,61 @@ enum class TokenKind {
     keyword_trait,
     keyword_type,
     keyword_unsafe,
+
+    // Punctuation
+
+    paren_left,     // (
+    paren_right,    // )
+    bracket_left,   // [
+    bracket_right,  // ]
+    brace_left,     // {
+    brace_right,    // }
+
+    period,     // .
+    comma,      // ,
+    semicolon,  // ;
+    colon,      // :
+    bang,       // !
+    question,   // ?
+    at,         // @
+    hash,       // #
+    arrow,      // ->
+
+    plus,     // +
+    minus,    // -
+    star,     // *
+    slash,    // /
+    percent,  // %
+
+    equal,          // =
+    plus_equal,     // +=
+    minus_equal,    // -=
+    star_equal,     // *=
+    slash_equal,    // /=
+    percent_equal,  // %=
+
+    tilde,            // ~
+    ampersand,        // &
+    pipe,             // |
+    caret,            // ^
+    less_less,        // <<
+    greater_greater,  // >>
+
+    ampersand_equal,        // &=
+    pipe_equal,             // |=
+    caret_equal,            // ^=
+    less_less_equal,        // <<=
+    greater_greater_equal,  // >>=
+
+    ampersand_ampersand,  // &&
+    pipe_pipe,            // ||
+
+    equal_equal,    // ==
+    bang_equal,     // !=
+    less,           // <
+    less_equal,     // <=
+    greater,        // >
+    greater_equal,  // >=
 };
 
 std::string_view to_string(TokenKind);

@@ -33,6 +33,7 @@ private:
     bool skip_comment();
 
     std::optional<Token> lex_name_or_keyword();
+    std::optional<Token> lex_punctuation();
 
     void emit_unexpected_char_diagnostic();
 };
