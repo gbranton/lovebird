@@ -8,6 +8,11 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 add_compile_options(-Wall -Wextra -Wpedantic)
 
+# Allow designated initializers for base classes (see P2287)
+add_compile_options(
+    $<$<COMPILE_LANG_AND_ID:CXX,Clang,AppleClang>:-Wno-c99-designator>
+)
+
 include(FetchContent)
 
 FetchContent_Declare(
