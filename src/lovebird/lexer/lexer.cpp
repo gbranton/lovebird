@@ -3,6 +3,7 @@
 #include <format>
 #include <optional>
 #include <string_view>
+#include <vector>
 
 #include "lovebird/diagnostic/diagnostic.hpp"
 #include "lovebird/diagnostic/diagnostic_emitter.hpp"
@@ -298,6 +299,16 @@ void Lexer::emit_unexpected_char_diagnostic() {
     auto message = std::format("unexpected character: U+{:04X}",
                                stream_.current().value());
     diagnostic_emitter_.emit(Diagnostic{.message = message});
+}
+
+std::vector<Token> lex_all(std::string_view source,
+                           DiagnosticEmitter& diagnostic_emitter) {
+    Lexer lexer{source, diagnostic_emitter};
+    std::vector<Token> tokens;
+    while (auto token = lexer.lex()) {
+        tokens.push_back(*token);
+    }
+    return tokens;
 }
 
 }  // namespace lovebird

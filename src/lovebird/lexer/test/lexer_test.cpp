@@ -42,27 +42,14 @@ protected:
         : diagnostic_emitter_{oss_} {
     }
 
-    Lexer make_lexer(std::string_view source) {
-        return Lexer{source, diagnostic_emitter_};
-    }
-
-    std::vector<Token> lex_all(std::string_view source) {
-        auto lexer = make_lexer(source);
-        std::vector<Token> tokens;
-        while (auto token = lexer.lex()) {
-            tokens.push_back(*token);
-        }
-        return tokens;
-    }
-
     void lex_and_expect_tokens(std::string_view source,
                                std::span<const Token> expected) {
-        auto tokens = lex_all(source);
+        auto tokens = lex_all(source, diagnostic_emitter_);
         EXPECT_THAT(tokens, Pointwise(TokenKindAndViewEqual(), expected));
     }
 
     void lex_and_expect_no_tokens(std::string_view source) {
-        auto tokens = lex_all(source);
+        auto tokens = lex_all(source, diagnostic_emitter_);
         EXPECT_THAT(tokens, IsEmpty());
     }
 

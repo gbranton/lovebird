@@ -3,6 +3,7 @@
 
 #include <optional>
 #include <string_view>
+#include <vector>
 
 #include "lovebird/diagnostic/diagnostic_emitter.hpp"
 #include "lovebird/source/source_iterator.hpp"
@@ -35,6 +36,9 @@ private:
 
     void emit_unexpected_char_diagnostic();
 };
+
+std::vector<Token> lex_all(std::string_view source,
+                           DiagnosticEmitter& diagnostic_emitter);
 
 }  // namespace lovebird
 
