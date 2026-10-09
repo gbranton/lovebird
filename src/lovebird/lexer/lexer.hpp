@@ -1,7 +1,6 @@
 #ifndef LOVEBIRD_LEXER_LEXER_HPP
 #define LOVEBIRD_LEXER_LEXER_HPP
 
-#include <memory>
 #include <optional>
 #include <string_view>
 
@@ -14,15 +13,14 @@ namespace lovebird {
 
 class Lexer {
 public:
-    Lexer(std::string_view source,
-          std::shared_ptr<DiagnosticEmitter> diagnostic_emitter);
+    Lexer(std::string_view source, DiagnosticEmitter& diagnostic_emitter);
 
     // Advances the lexer and returns the next token.
     std::optional<Token> lex();
 
 private:
     SourceStream stream_;
-    std::shared_ptr<DiagnosticEmitter> diagnostic_emitter_;
+    DiagnosticEmitter& diagnostic_emitter_;
     SourceIterator token_start_;
 
     std::string_view token_view() const;

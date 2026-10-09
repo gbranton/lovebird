@@ -36,13 +36,13 @@ MATCHER(DiagnosticMessageEqual, "") {
 class LexerTest : public Test {
 protected:
     std::ostringstream oss_;
-    std::shared_ptr<DiagnosticEmitter> diagnostic_emitter_;
+    DiagnosticEmitter diagnostic_emitter_;
 
     LexerTest()
-        : diagnostic_emitter_{std::make_shared<DiagnosticEmitter>(oss_)} {
+        : diagnostic_emitter_{oss_} {
     }
 
-    Lexer make_lexer(std::string_view source) const {
+    Lexer make_lexer(std::string_view source) {
         return Lexer{source, diagnostic_emitter_};
     }
 
@@ -67,12 +67,12 @@ protected:
     }
 
     void expect_diagnostics(std::span<const Diagnostic> expected) const {
-        EXPECT_THAT(diagnostic_emitter_->diagnostics(),
+        EXPECT_THAT(diagnostic_emitter_.diagnostics(),
                     Pointwise(DiagnosticMessageEqual(), expected));
     }
 
     void expect_no_diagnostics() const {
-        EXPECT_THAT(diagnostic_emitter_->diagnostics(), IsEmpty());
+        EXPECT_THAT(diagnostic_emitter_.diagnostics(), IsEmpty());
     }
 };
 

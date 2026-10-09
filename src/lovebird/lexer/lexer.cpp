@@ -1,7 +1,6 @@
 #include "lovebird/lexer/lexer.hpp"
 
 #include <format>
-#include <memory>
 #include <optional>
 #include <string_view>
 
@@ -13,8 +12,7 @@
 
 namespace lovebird {
 
-Lexer::Lexer(std::string_view source,
-             std::shared_ptr<DiagnosticEmitter> diagnostic_emitter)
+Lexer::Lexer(std::string_view source, DiagnosticEmitter& diagnostic_emitter)
     : stream_{source},
       diagnostic_emitter_{diagnostic_emitter} {
 }
@@ -299,7 +297,7 @@ std::optional<Token> Lexer::lex_punctuation() {
 void Lexer::emit_unexpected_char_diagnostic() {
     auto message = std::format("unexpected character: U+{:04X}",
                                stream_.current().value());
-    diagnostic_emitter_->emit(Diagnostic{.message = message});
+    diagnostic_emitter_.emit(Diagnostic{.message = message});
 }
 
 }  // namespace lovebird
