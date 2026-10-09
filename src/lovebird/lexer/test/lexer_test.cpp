@@ -1,6 +1,5 @@
 #include "lovebird/lexer/lexer.hpp"
 
-#include <memory>
 #include <span>
 #include <sstream>
 #include <string>
