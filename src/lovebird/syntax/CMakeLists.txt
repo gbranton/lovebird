@@ -3,3 +3,5 @@ target_sources(
     PRIVATE
         token.cpp
 )
+
+add_subdirectory(test)
