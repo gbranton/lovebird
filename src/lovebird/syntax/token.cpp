@@ -15,6 +15,8 @@ std::string_view to_string(TokenKind kind) {
             return "name";
         case TokenKind::literal_int:
             return "int literal";
+        case TokenKind::literal_char:
+            return "char literal";
         case TokenKind::keyword_break:
             return "break";
         case TokenKind::keyword_case:

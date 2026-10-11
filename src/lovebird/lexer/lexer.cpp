@@ -36,6 +36,9 @@ std::optional<Token> Lexer::lex() {
     if (auto tok = lex_numeric_literal()) {
         return tok;
     }
+    if (auto tok = lex_char_literal()) {
+        return tok;
+    }
 
     emit_unexpected_char_diagnostic();
     return std::nullopt;
@@ -312,6 +315,27 @@ std::optional<Token> Lexer::lex_numeric_literal() {
     }
 
     return make_token(TokenKind::literal_int);
+}
+
+std::optional<Token> Lexer::lex_char_literal() {
+    if (!stream_.match('\'')) {
+        return std::nullopt;
+    }
+
+    if (stream_.match('\'')) {
+        diagnostic_emitter_.emit(Diagnostic{
+            .message = "empty char literal",
+        });
+    } else {
+        stream_.next();
+        if (!stream_.match('\'')) {
+            diagnostic_emitter_.emit(Diagnostic{
+                .message = "unterminated char literal",
+            });
+        }
+    }
+
+    return make_token(TokenKind::literal_char);
 }
 
 Lexer::Base Lexer::match_base_prefix() {

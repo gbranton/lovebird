@@ -17,6 +17,7 @@ enum class TokenKind {
     // Literals
 
     literal_int,
+    literal_char,
 
     // Keywords
 

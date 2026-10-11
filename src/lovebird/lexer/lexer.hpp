@@ -34,6 +34,7 @@ private:
     std::optional<Token> lex_name_or_keyword();
     std::optional<Token> lex_punctuation();
     std::optional<Token> lex_numeric_literal();
+    std::optional<Token> lex_char_literal();
 
     enum class Base { bin, oct, dec, hex };
 

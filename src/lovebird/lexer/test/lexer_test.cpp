@@ -159,6 +159,42 @@ TEST_F(LexerTest, EmitUnexpectedDigitInNumericLiteral) {
     expect_diagnostics(diagnostics);
 }
 
+TEST_F(LexerTest, LexCharLiterals) {
+    std::string_view source = "'a' 'Ω' '📖'";
+    std::vector<Token> tokens = {
+        {.kind = TokenKind::literal_char, .view = "'a'"},
+        {.kind = TokenKind::literal_char, .view = "'Ω'"},
+        {.kind = TokenKind::literal_char, .view = "'📖'"},
+    };
+    lex_and_expect_tokens(source, tokens);
+    expect_no_diagnostics();
+}
+
+TEST_F(LexerTest, EmitEmptyCharLiteral) {
+    std::string_view source = "''";
+    std::vector<Token> tokens = {
+        {.kind = TokenKind::literal_char, .view = "''"}};
+    std::vector<Diagnostic> diagnostics = {
+        {.message = "empty char literal"},
+    };
+    lex_and_expect_tokens(source, tokens);
+    expect_diagnostics(diagnostics);
+}
+
+TEST_F(LexerTest, EmitUnterminatedCharLiteral) {
+    std::string_view source = "'z '☀";
+    std::vector<Token> tokens = {
+        {.kind = TokenKind::literal_char, .view = "'z"},
+        {.kind = TokenKind::literal_char, .view = "'☀"},
+    };
+    std::vector<Diagnostic> diagnostics = {
+        {.message = "unterminated char literal"},
+        {.message = "unterminated char literal"},
+    };
+    lex_and_expect_tokens(source, tokens);
+    expect_diagnostics(diagnostics);
+}
+
 TEST_F(LexerTest, LexKeywords) {
     std::string source;
     std::vector<Token> tokens;
