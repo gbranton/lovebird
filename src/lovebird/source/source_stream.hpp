@@ -4,12 +4,13 @@
 #include <concepts>
 #include <cstddef>
 #include <iterator>
-#include <optional>
 #include <string_view>
 
 #include "lovebird/source/source_iterator.hpp"
 
 namespace lovebird {
+
+constexpr Char source_end_char = 0;
 
 class SourceStream {
 public:
@@ -27,29 +28,29 @@ public:
     }
 
     // Gets the current character without advancing.
-    std::optional<Char> current() const {
+    Char current() const {
         if (done()) {
-            return std::nullopt;
+            return source_end_char;
         }
         auto ch = *it_;
         return ch.ch;
     }
 
     // Looks ahead by n characters.
-    std::optional<Char> peek(std::size_t n) const {
+    Char peek(std::size_t n) const {
         auto it_copy = it_;
         std::ranges::advance(it_copy, n, end_);
         if (it_copy == end_) {
-            return std::nullopt;
+            return source_end_char;
         }
         auto ch = *it_copy;
         return ch.ch;
     }
 
     // Gets the current character and advances the stream.
-    std::optional<Char> next() {
+    Char next() {
         if (done()) {
-            return std::nullopt;
+            return source_end_char;
         }
         auto ch = *it_;
         ++it_;
@@ -78,8 +79,7 @@ public:
     // Advances the stream if the current character matches a predicate.
     template <std::predicate<Char> Predicate>
     bool match(Predicate&& p) {
-        auto ch = current();
-        if (ch && p(*ch)) {
+        if (p(current())) {
             ++it_;
             return true;
         }

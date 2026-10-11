@@ -97,7 +97,7 @@ std::optional<Token> Lexer::lex_punctuation() {
     TokenKind kind;
     int length = 1;
 
-    switch (*stream_.current()) {
+    switch (stream_.current()) {
         case '(':
             kind = TokenKind::paren_left;
             break;
@@ -300,7 +300,7 @@ std::optional<Token> Lexer::lex_punctuation() {
 
 std::optional<Token> Lexer::lex_numeric_literal() {
     // All numeric literals start with a decimal digit.
-    if (!is_decimal_digit(stream_.current().value_or(0))) {
+    if (!is_decimal_digit(stream_.current())) {
         return std::nullopt;
     }
 
@@ -312,18 +312,16 @@ std::optional<Token> Lexer::lex_numeric_literal() {
 
 Lexer::Base Lexer::match_base_prefix() {
     if (stream_.match('0')) {
-        if (auto prefix_ch = stream_.current()) {
-            switch (*prefix_ch) {
-                case 'b':
-                    stream_.next();
-                    return Base::bin;
-                case 'o':
-                    stream_.next();
-                    return Base::oct;
-                case 'x':
-                    stream_.next();
-                    return Base::hex;
-            }
+        switch (stream_.current()) {
+            case 'b':
+                stream_.next();
+                return Base::bin;
+            case 'o':
+                stream_.next();
+                return Base::oct;
+            case 'x':
+                stream_.next();
+                return Base::hex;
         }
     }
     return Base::dec;
@@ -349,8 +347,8 @@ void Lexer::match_digits(Base base) {
 }
 
 void Lexer::emit_unexpected_char_diagnostic() {
-    auto message = std::format("unexpected character: U+{:04X}",
-                               stream_.current().value());
+    auto message =
+        std::format("unexpected character: U+{:04X}", stream_.current());
     diagnostic_emitter_.emit(Diagnostic{.message = message});
 }
 
