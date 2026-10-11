@@ -1,5 +1,6 @@
 #include "lovebird/parser/parser.hpp"
 
+#include <format>
 #include <optional>
 
 #include "lovebird/diagnostic/diagnostic.hpp"
@@ -34,6 +35,16 @@ Parser::Parser(TokenStream stream,
 
 Expr* Parser::parse_expr() {
     return parse_unary_operator();
+}
+
+const Token* Parser::expect(TokenKind kind) {
+    auto* tok = stream_.match(kind);
+    if (!tok) {
+        diagnostic_emitter_.emit(Diagnostic{
+            .message = std::format("expected {}", kind),
+        });
+    }
+    return tok;
 }
 
 Expr* Parser::parse_unary_operator() {
@@ -74,16 +85,12 @@ Expr* Parser::parse_primary_expr() {
 }
 
 Expr* Parser::parse_name() {
-    auto* tok = stream_.match(TokenKind::name);
-    if (!tok) {
-        diagnostic_emitter_.emit(Diagnostic{
-            .message = "expected name",
+    if (auto* tok = expect(TokenKind::name)) {
+        return tree_.make<Expr>(Name{
+            .value = tok->view,
         });
-        return nullptr;
     }
-    return tree_.make<Expr>(Name{
-        .value = tok->view,
-    });
+    return nullptr;
 }
 
 }  // namespace lovebird

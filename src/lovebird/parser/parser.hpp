@@ -7,6 +7,7 @@
 #include "lovebird/parser/token_stream.hpp"
 #include "lovebird/syntax/expr.hpp"
 #include "lovebird/syntax/syntax_tree.hpp"
+#include "lovebird/syntax/token.hpp"
 
 namespace lovebird {
 
@@ -22,6 +23,8 @@ private:
     TokenStream stream_;
     SyntaxTree& tree_;
     DiagnosticEmitter& diagnostic_emitter_;
+
+    const Token* expect(TokenKind);
 
     Expr* parse_unary_operator();
 
