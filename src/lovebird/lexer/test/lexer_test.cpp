@@ -129,6 +129,36 @@ TEST_F(LexerTest, LexIntLiterals) {
     expect_no_diagnostics();
 }
 
+TEST_F(LexerTest, EmitIncompleteNumericLiteral) {
+    std::string_view source = "0b 0o 0x";
+    std::vector<Token> tokens = {
+        {.kind = TokenKind::literal_int, .view = "0b"},
+        {.kind = TokenKind::literal_int, .view = "0o"},
+        {.kind = TokenKind::literal_int, .view = "0x"},
+    };
+    std::vector<Diagnostic> diagnostics = {
+        {.message = "incomplete numeric literal"},
+        {.message = "incomplete numeric literal"},
+        {.message = "incomplete numeric literal"},
+    };
+    lex_and_expect_tokens(source, tokens);
+    expect_diagnostics(diagnostics);
+}
+
+TEST_F(LexerTest, EmitUnexpectedDigitInNumericLiteral) {
+    std::string_view source = "0b012 0o678";
+    std::vector<Token> tokens = {
+        {.kind = TokenKind::literal_int, .view = "0b012"},
+        {.kind = TokenKind::literal_int, .view = "0o678"},
+    };
+    std::vector<Diagnostic> diagnostics = {
+        {.message = "unexpected digit '2' in binary literal"},
+        {.message = "unexpected digit '8' in octal literal"},
+    };
+    lex_and_expect_tokens(source, tokens);
+    expect_diagnostics(diagnostics);
+}
+
 TEST_F(LexerTest, LexKeywords) {
     std::string source;
     std::vector<Token> tokens;

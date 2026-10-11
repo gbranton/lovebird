@@ -305,29 +305,29 @@ std::optional<Token> Lexer::lex_numeric_literal() {
     }
 
     Base base = match_base_prefix();
-    match_digits(base);
+    if (!match_digits(base)) {
+        diagnostic_emitter_.emit(Diagnostic{
+            .message = "incomplete numeric literal",
+        });
+    }
 
     return make_token(TokenKind::literal_int);
 }
 
 Lexer::Base Lexer::match_base_prefix() {
-    if (stream_.match('0')) {
-        switch (stream_.current()) {
-            case 'b':
-                stream_.next();
-                return Base::bin;
-            case 'o':
-                stream_.next();
-                return Base::oct;
-            case 'x':
-                stream_.next();
-                return Base::hex;
-        }
+    if (stream_.match('0', 'b')) {
+        return Base::bin;
+    }
+    if (stream_.match('0', 'o')) {
+        return Base::oct;
+    }
+    if (stream_.match('0', 'x')) {
+        return Base::hex;
     }
     return Base::dec;
 }
 
-void Lexer::match_digits(Base base) {
+bool Lexer::match_digits(Base base) {
     auto to_predicate = [](Base base) {
         switch (base) {
             case Base::bin:
@@ -341,8 +341,39 @@ void Lexer::match_digits(Base base) {
         }
     };
 
+    bool matched = false;
+
     auto predicate = to_predicate(base);
     while (stream_.match(predicate)) {
+        matched = true;
+    }
+
+    // Check for invalid trailing decimal digits (wrong base).
+    if (is_decimal_digit(stream_.current())) {
+        diagnostic_emitter_.emit(Diagnostic{
+            .message = std::format("unexpected digit '{}' in {} literal",
+                                   static_cast<char>(stream_.current()),
+                                   to_string(base)),
+        });
+
+        // Skip the rest.
+        while (stream_.match(is_decimal_digit)) {
+        }
+    }
+
+    return matched;
+}
+
+std::string_view Lexer::to_string(Base base) {
+    switch (base) {
+        case Base::bin:
+            return "binary";
+        case Base::oct:
+            return "octal";
+        case Base::dec:
+            return "decimal";
+        case Base::hex:
+            return "hexadecimal";
     }
 }
 

@@ -38,7 +38,8 @@ private:
     enum class Base { bin, oct, dec, hex };
 
     Base match_base_prefix();
-    void match_digits(Base);
+    bool match_digits(Base);
+    static std::string_view to_string(Base);
 
     void emit_unexpected_char_diagnostic();
 };
