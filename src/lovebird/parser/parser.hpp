@@ -32,6 +32,7 @@ private:
 
     Expr* parse_primary_expr();
     Expr* parse_name();
+    Expr* parse_literal();
 };
 
 }  // namespace lovebird

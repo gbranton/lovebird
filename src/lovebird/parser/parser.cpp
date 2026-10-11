@@ -23,6 +23,17 @@ std::optional<OperatorKind> to_unary_operator_kind(TokenKind kind) {
     }
 }
 
+std::optional<LiteralKind> to_literal_kind(TokenKind kind) {
+    switch (kind) {
+        case TokenKind::literal_int:
+            return LiteralKind::literal_int;
+        case TokenKind::literal_char:
+            return LiteralKind::literal_char;
+        default:
+            return std::nullopt;
+    }
+}
+
 }  // namespace
 
 Parser::Parser(TokenStream stream,
@@ -79,6 +90,9 @@ Expr* Parser::parse_primary_expr() {
     switch (stream_.kind()) {
         case TokenKind::name:
             return parse_name();
+        case TokenKind::literal_int:
+        case TokenKind::literal_char:
+            return parse_literal();
         default:
             return nullptr;
     }
@@ -91,6 +105,24 @@ Expr* Parser::parse_name() {
         });
     }
     return nullptr;
+}
+
+Expr* Parser::parse_literal() {
+    auto lit_kind = to_literal_kind(stream_.kind());
+    if (!lit_kind) {
+        diagnostic_emitter_.emit(Diagnostic{
+            .message = "expected literal",
+        });
+        return nullptr;
+    }
+
+    auto* tok = stream_.current();
+    stream_.next();
+
+    return tree_.make<Expr>(Literal{
+        .kind = *lit_kind,
+        .value = tok->view,
+    });
 }
 
 }  // namespace lovebird

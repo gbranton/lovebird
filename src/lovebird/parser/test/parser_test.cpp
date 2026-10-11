@@ -77,11 +77,25 @@ protected:
     }
 };
 
-TEST_F(ParserTest, ParsePrimaryExpression) {
+TEST_F(ParserTest, ParseName) {
     std::string_view source = "cat";
     auto* expr = make_expr(Name{.value = "cat"});
     parse_expr_and_expect_tree(source, expr);
     expect_no_diagnostics();
+}
+
+TEST_F(ParserTest, ParseLiterals) {
+    auto test_case =
+        [&](std::string_view source, LiteralKind kind, std::string_view value) {
+            auto* expr = make_expr(Literal{
+                .kind = kind,
+                .value = value,
+            });
+            parse_expr_and_expect_tree(source, expr);
+            expect_no_diagnostics();
+        };
+    test_case("64", LiteralKind::literal_int, "64");
+    test_case("'*'", LiteralKind::literal_char, "'*'");
 }
 
 TEST_F(ParserTest, ParseUnaryOperator) {
