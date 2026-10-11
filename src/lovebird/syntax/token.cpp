@@ -13,6 +13,8 @@ std::string_view to_string(TokenKind kind) {
             return "end of input";
         case TokenKind::name:
             return "name";
+        case TokenKind::literal_int:
+            return "int literal";
         case TokenKind::keyword_break:
             return "break";
         case TokenKind::keyword_case:

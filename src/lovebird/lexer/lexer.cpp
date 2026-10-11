@@ -33,6 +33,9 @@ std::optional<Token> Lexer::lex() {
     if (auto tok = lex_punctuation()) {
         return tok;
     }
+    if (auto tok = lex_numeric_literal()) {
+        return tok;
+    }
 
     emit_unexpected_char_diagnostic();
     return std::nullopt;
@@ -293,6 +296,56 @@ std::optional<Token> Lexer::lex_punctuation() {
     }
 
     return make_token(kind);
+}
+
+std::optional<Token> Lexer::lex_numeric_literal() {
+    // All numeric literals start with a decimal digit.
+    if (!is_decimal_digit(stream_.current().value_or(0))) {
+        return std::nullopt;
+    }
+
+    Base base = match_base_prefix();
+    match_digits(base);
+
+    return make_token(TokenKind::literal_int);
+}
+
+Lexer::Base Lexer::match_base_prefix() {
+    if (stream_.match('0')) {
+        if (auto prefix_ch = stream_.current()) {
+            switch (*prefix_ch) {
+                case 'b':
+                    stream_.next();
+                    return Base::bin;
+                case 'o':
+                    stream_.next();
+                    return Base::oct;
+                case 'x':
+                    stream_.next();
+                    return Base::hex;
+            }
+        }
+    }
+    return Base::dec;
+}
+
+void Lexer::match_digits(Base base) {
+    auto to_predicate = [](Base base) {
+        switch (base) {
+            case Base::bin:
+                return is_binary_digit;
+            case Base::oct:
+                return is_octal_digit;
+            case Base::dec:
+                return is_decimal_digit;
+            case Base::hex:
+                return is_hexadecimal_digit;
+        }
+    };
+
+    auto predicate = to_predicate(base);
+    while (stream_.match(predicate)) {
+    }
 }
 
 void Lexer::emit_unexpected_char_diagnostic() {

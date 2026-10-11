@@ -33,6 +33,12 @@ private:
 
     std::optional<Token> lex_name_or_keyword();
     std::optional<Token> lex_punctuation();
+    std::optional<Token> lex_numeric_literal();
+
+    enum class Base { bin, oct, dec, hex };
+
+    Base match_base_prefix();
+    void match_digits(Base);
 
     void emit_unexpected_char_diagnostic();
 };

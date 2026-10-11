@@ -14,6 +14,10 @@ enum class TokenKind {
 
     name,
 
+    // Literals
+
+    literal_int,
+
     // Keywords
 
     keyword_break,

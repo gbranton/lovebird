@@ -111,6 +111,24 @@ TEST_F(LexerTest, LexNames) {
     expect_no_diagnostics();
 }
 
+TEST_F(LexerTest, LexIntLiterals) {
+    std::string_view source =
+        "0 1 1234567890 "
+        "0b01 0o01234567 0x0123456789abcdefABCDEF "
+        "0xDECAF";
+    std::vector<Token> tokens = {
+        {.kind = TokenKind::literal_int, .view = "0"},
+        {.kind = TokenKind::literal_int, .view = "1"},
+        {.kind = TokenKind::literal_int, .view = "1234567890"},
+        {.kind = TokenKind::literal_int, .view = "0b01"},
+        {.kind = TokenKind::literal_int, .view = "0o01234567"},
+        {.kind = TokenKind::literal_int, .view = "0x0123456789abcdefABCDEF"},
+        {.kind = TokenKind::literal_int, .view = "0xDECAF"},
+    };
+    lex_and_expect_tokens(source, tokens);
+    expect_no_diagnostics();
+}
+
 TEST_F(LexerTest, LexKeywords) {
     std::string source;
     std::vector<Token> tokens;
