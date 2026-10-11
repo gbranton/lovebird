@@ -28,12 +28,8 @@ void test_equal(const Name& actual, const Name& expected) {
     EXPECT_EQ(actual.value, expected.value);
 }
 
-void test_equal(const IntLiteral& actual, const IntLiteral& expected) {
-    EXPECT_EQ(actual.value, expected.value);
-    EXPECT_EQ(actual.base, expected.base);
-}
-
-void test_equal(const CharLiteral& actual, const CharLiteral& expected) {
+void test_equal(const Literal& actual, const Literal& expected) {
+    EXPECT_EQ(actual.kind, expected.kind);
     EXPECT_EQ(actual.value, expected.value);
 }
 

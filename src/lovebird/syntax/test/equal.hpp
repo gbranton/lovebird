@@ -9,9 +9,7 @@ void test_equal(const Expr& actual, const Expr& expected);
 
 void test_equal(const Name& actual, const Name& expected);
 
-void test_equal(const IntLiteral& actual, const IntLiteral& expected);
-
-void test_equal(const CharLiteral& actual, const CharLiteral& expected);
+void test_equal(const Literal& actual, const Literal& expected);
 
 void test_equal(const Operator& actual, const Operator& expected);
 

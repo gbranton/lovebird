@@ -17,15 +17,14 @@ struct Name {
     std::string_view value;
 };
 
-enum class IntBase { bin, oct, dec, hex };
-
-struct IntLiteral {
-    std::uint64_t value;
-    IntBase base;
+enum class LiteralKind {
+    literal_int,
+    literal_char,
 };
 
-struct CharLiteral {
-    Char value;
+struct Literal {
+    LiteralKind kind;
+    std::string_view value;
 };
 
 enum class OperatorKind {
@@ -44,7 +43,7 @@ struct Operator {
     Expr* right = nullptr;
 };
 
-using ExprVariant = std::variant<Name, IntLiteral, CharLiteral, Operator>;
+using ExprVariant = std::variant<Name, Literal, Operator>;
 
 struct Expr : ExprVariant {
     SourceSpan span;
