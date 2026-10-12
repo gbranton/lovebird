@@ -167,6 +167,8 @@ Expr* Parser::parse_primary_expr() {
         case TokenKind::literal_int:
         case TokenKind::literal_char:
             return parse_literal();
+        case TokenKind::paren_left:
+            return parse_block();
         default:
             return nullptr;
     }
@@ -197,6 +199,15 @@ Expr* Parser::parse_literal() {
         .kind = *lit_kind,
         .value = tok->view,
     });
+}
+
+Expr* Parser::parse_block() {
+    if (!expect(TokenKind::paren_left)) {
+        return nullptr;
+    }
+    auto* inner = parse_expr();
+    expect(TokenKind::paren_right);
+    return inner;
 }
 
 }  // namespace lovebird

@@ -202,6 +202,27 @@ TEST_F(ParserTest, EmitMissingOperandForBinaryOperator) {
     });
 }
 
+TEST_F(ParserTest, ParseParenthesizedExpression) {
+    auto test_case = [&](std::string_view source, Expr* expected) {
+        parse_expr_and_expect_tree(source, expected);
+        expect_no_diagnostics();
+    };
+    test_case("(1)", int_lit("1"));
+    test_case("(((1)))", int_lit("1"));
+    test_case("-(1)", negate_op(int_lit("1")));
+    test_case("(1 + 2) * 3",
+              multiply_op(add_op(int_lit("1"), int_lit("2")), int_lit("3")));
+    test_case("1 + (2 * 3)",
+              add_op(int_lit("1"), multiply_op(int_lit("2"), int_lit("3"))));
+}
+
+TEST_F(ParserTest, EmitUnclosedBlock) {
+    std::string_view source = "(1 + 2";
+    Expr* expr = add_op(int_lit("1"), int_lit("2"));
+    parse_expr_and_expect_tree(source, expr);
+    expect_diagnostics({Diagnostic{.message = "expected )"}});
+}
+
 }  // namespace
 
 }  // namespace lovebird
