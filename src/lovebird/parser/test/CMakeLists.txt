@@ -1,5 +1,6 @@
 add_executable(
     lovebird_parser_test
+    lexer_test.cpp
     parser_test.cpp
 )
 

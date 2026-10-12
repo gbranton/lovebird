@@ -1,5 +1,5 @@
-#ifndef LOVEBIRD_LEXER_LEXER_HPP
-#define LOVEBIRD_LEXER_LEXER_HPP
+#ifndef LOVEBIRD_PARSER_LEXER_HPP
+#define LOVEBIRD_PARSER_LEXER_HPP
 
 #include <optional>
 #include <string_view>
@@ -50,4 +50,4 @@ std::vector<Token> lex_all(std::string_view source,
 
 }  // namespace lovebird
 
-#endif  // ifndef LOVEBIRD_LEXER_LEXER_HPP
+#endif  // ifndef LOVEBIRD_PARSER_LEXER_HPP

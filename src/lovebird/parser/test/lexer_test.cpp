@@ -1,4 +1,4 @@
-#include "lovebird/lexer/lexer.hpp"
+#include "lovebird/parser/lexer.hpp"
 
 #include <span>
 #include <sstream>
@@ -11,7 +11,7 @@
 
 #include "lovebird/diagnostic/diagnostic.hpp"
 #include "lovebird/diagnostic/diagnostic_emitter.hpp"
-#include "lovebird/lexer/keyword_table.hpp"
+#include "lovebird/parser/keyword_table.hpp"
 #include "lovebird/syntax/token.hpp"
 
 namespace lovebird {

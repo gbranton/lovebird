@@ -11,7 +11,7 @@
 
 #include "lovebird/diagnostic/diagnostic.hpp"
 #include "lovebird/diagnostic/diagnostic_emitter.hpp"
-#include "lovebird/lexer/lexer.hpp"
+#include "lovebird/parser/lexer.hpp"
 #include "lovebird/parser/token_stream.hpp"
 #include "lovebird/syntax/expr.hpp"
 #include "lovebird/syntax/syntax_tree.hpp"

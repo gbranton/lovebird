@@ -1,5 +1,5 @@
-#ifndef LOVEBIRD_LEXER_KEYWORD_TABLE_HPP
-#define LOVEBIRD_LEXER_KEYWORD_TABLE_HPP
+#ifndef LOVEBIRD_PARSER_KEYWORD_TABLE_HPP
+#define LOVEBIRD_PARSER_KEYWORD_TABLE_HPP
 
 #include <algorithm>
 #include <array>
@@ -52,4 +52,4 @@ constexpr std::optional<TokenKind> look_up_keyword(std::string_view sv) {
 
 }  // namespace lovebird
 
-#endif  // ifndef LOVEBIRD_LEXER_KEYWORD_TABLE_HPP
+#endif  // ifndef LOVEBIRD_PARSER_KEYWORD_TABLE_HPP

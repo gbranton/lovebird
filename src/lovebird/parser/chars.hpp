@@ -1,5 +1,5 @@
-#ifndef LOVEBIRD_LEXER_CHARS_HPP
-#define LOVEBIRD_LEXER_CHARS_HPP
+#ifndef LOVEBIRD_PARSER_CHARS_HPP
+#define LOVEBIRD_PARSER_CHARS_HPP
 
 #include "lovebird/runtime/builtin.hpp"
 
@@ -48,4 +48,4 @@ inline bool is_name_continue(Char ch) {
 
 }  // namespace lovebird
 
-#endif  // ifndef LOVEBIRD_LEXER_CHARS_HPP
+#endif  // ifndef LOVEBIRD_PARSER_CHARS_HPP
