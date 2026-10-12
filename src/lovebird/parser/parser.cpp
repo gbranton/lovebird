@@ -2,6 +2,7 @@
 
 #include <format>
 #include <optional>
+#include <utility>
 
 #include "lovebird/diagnostic/diagnostic.hpp"
 #include "lovebird/diagnostic/diagnostic_emitter.hpp"
@@ -20,6 +21,37 @@ std::optional<OperatorKind> to_unary_operator_kind(TokenKind kind) {
             return OperatorKind::negate;
         default:
             return std::nullopt;
+    }
+}
+
+std::optional<OperatorKind> to_binary_operator_kind(TokenKind kind) {
+    switch (kind) {
+        case TokenKind::plus:
+            return OperatorKind::add;
+        case TokenKind::minus:
+            return OperatorKind::subtract;
+        case TokenKind::star:
+            return OperatorKind::multiply;
+        case TokenKind::slash:
+            return OperatorKind::divide;
+        case TokenKind::percent:
+            return OperatorKind::remainder;
+        default:
+            return std::nullopt;
+    }
+}
+
+int precedence(OperatorKind kind) {
+    switch (kind) {
+        case OperatorKind::add:
+        case OperatorKind::subtract:
+            return 1;
+        case OperatorKind::multiply:
+        case OperatorKind::divide:
+        case OperatorKind::remainder:
+            return 2;
+        case OperatorKind::negate:
+            return 3;
     }
 }
 
@@ -45,7 +77,7 @@ Parser::Parser(TokenStream stream,
 }
 
 Expr* Parser::parse_expr() {
-    return parse_unary_operator();
+    return parse_binary_operator(0);
 }
 
 const Token* Parser::expect(TokenKind kind) {
@@ -78,12 +110,54 @@ Expr* Parser::parse_unary_operator() {
     });
 }
 
-std::optional<OperatorKind> Parser::parse_unary_operator_kind() {
-    auto kind = to_unary_operator_kind(stream_.kind());
-    if (kind) {
-        stream_.next();
+Expr* Parser::parse_binary_operator(int min_prec) {
+    auto* left = parse_unary_operator();
+    if (!left) {
+        return nullptr;
     }
-    return kind;
+
+    while (true) {
+        auto [kind, next_prec] = parse_binary_operator_kind(min_prec);
+        if (!kind) {
+            break;
+        }
+
+        auto* right = parse_binary_operator(next_prec);
+        if (!right) {
+            diagnostic_emitter_.emit(Diagnostic{
+                .message = "missing operand for binary operator",
+            });
+            break;
+        }
+
+        left = tree_.make<Expr>(Operator{
+            .kind = *kind,
+            .left = left,
+            .right = right,
+        });
+    }
+
+    return left;
+}
+
+std::optional<OperatorKind> Parser::parse_unary_operator_kind() {
+    if (auto kind = to_unary_operator_kind(stream_.kind())) {
+        stream_.next();
+        return kind;
+    }
+    return std::nullopt;
+}
+
+std::pair<std::optional<OperatorKind>, int> Parser::parse_binary_operator_kind(
+    int min_prec) {
+    if (auto kind = to_binary_operator_kind(stream_.kind())) {
+        int prec = precedence(*kind);
+        if (prec > min_prec) {
+            stream_.next();
+            return {kind, prec};
+        }
+    }
+    return {std::nullopt, 0};
 }
 
 Expr* Parser::parse_primary_expr() {

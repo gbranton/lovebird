@@ -2,6 +2,7 @@
 #define LOVEBIRD_PARSER_PARSER_HPP
 
 #include <optional>
+#include <utility>
 
 #include "lovebird/diagnostic/diagnostic_emitter.hpp"
 #include "lovebird/parser/token_stream.hpp"
@@ -27,8 +28,11 @@ private:
     const Token* expect(TokenKind);
 
     Expr* parse_unary_operator();
+    Expr* parse_binary_operator(int min_prec);
 
     std::optional<OperatorKind> parse_unary_operator_kind();
+    std::pair<std::optional<OperatorKind>, int> parse_binary_operator_kind(
+        int min_prec);
 
     Expr* parse_primary_expr();
     Expr* parse_name();
