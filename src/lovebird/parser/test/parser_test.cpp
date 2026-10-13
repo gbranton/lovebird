@@ -76,9 +76,20 @@ protected:
         return tree_.make<Expr>(std::forward<T>(expr));
     }
 
+    Expr* name(std::string_view value) {
+        return make_expr(Name{.value = value});
+    }
+
     Expr* int_lit(std::string_view value) {
         return make_expr(Literal{
             .kind = LiteralKind::literal_int,
+            .value = value,
+        });
+    }
+
+    Expr* char_lit(std::string_view value) {
+        return make_expr(Literal{
+            .kind = LiteralKind::literal_char,
             .value = value,
         });
     }
@@ -117,7 +128,7 @@ protected:
 
 TEST_F(ParserTest, ParseName) {
     std::string_view source = "cat";
-    auto* expr = make_expr(Name{.value = "cat"});
+    auto* expr = name("cat");
     parse_expr_and_expect_tree(source, expr);
     expect_no_diagnostics();
 }
@@ -138,26 +149,14 @@ TEST_F(ParserTest, ParseLiterals) {
 
 TEST_F(ParserTest, ParseUnaryOperator) {
     std::string_view source = "-negated";
-    auto* expr = make_expr(Operator{
-        .kind = OperatorKind::negate,
-        .right = make_expr(Name{.value = "negated"}),
-    });
+    auto* expr = negate_op(name("negated"));
     parse_expr_and_expect_tree(source, expr);
     expect_no_diagnostics();
 }
 
 TEST_F(ParserTest, ParseMultipleUnaryOperators) {
     std::string_view source = "---negated";
-    auto* expr = make_expr(Operator{
-        .kind = OperatorKind::negate,
-        .right = make_expr(Operator{
-            .kind = OperatorKind::negate,
-            .right = make_expr(Operator{
-                .kind = OperatorKind::negate,
-                .right = make_expr(Name{.value = "negated"}),
-            }),
-        }),
-    });
+    auto* expr = negate_op(negate_op(negate_op(name("negated"))));
     parse_expr_and_expect_tree(source, expr);
     expect_no_diagnostics();
 }
