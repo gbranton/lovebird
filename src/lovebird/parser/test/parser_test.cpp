@@ -59,7 +59,7 @@ protected:
         auto parser = make_parser(source);
         auto* actual = parser.parse_expr();
         ASSERT_NE(actual, nullptr);
-        test_equal(*actual, *expected);
+        expect_equal(*actual, *expected);
     }
 
     void expect_diagnostics(std::span<const Diagnostic> expected) const {
