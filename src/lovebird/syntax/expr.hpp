@@ -2,6 +2,7 @@
 #define LOVEBIRD_SYNTAX_EXPR_HPP
 
 #include <cstdint>
+#include <span>
 #include <string_view>
 #include <type_traits>
 #include <variant>
@@ -12,6 +13,7 @@
 namespace lovebird {
 
 struct Expr;
+struct Stmt;
 
 struct Name {
     std::string_view value;
@@ -43,7 +45,11 @@ struct Operator {
     Expr* right = nullptr;
 };
 
-using ExprVariant = std::variant<Name, Literal, Operator>;
+struct Block {
+    std::span<Stmt*> statements;
+};
+
+using ExprVariant = std::variant<Name, Literal, Operator, Block>;
 
 struct Expr : ExprVariant {
     SourceSpan span;
