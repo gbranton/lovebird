@@ -73,7 +73,7 @@ protected:
 
     template <class T>
     Expr* make_expr(T&& expr) {
-        return tree_.make<Expr>(std::forward<T>(expr));
+        return tree_.arena.make<Expr>(std::forward<T>(expr));
     }
 
     Expr* name(std::string_view value) {

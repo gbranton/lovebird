@@ -25,6 +25,11 @@ private:
     SyntaxTree& tree_;
     DiagnosticEmitter& diagnostic_emitter_;
 
+    template <class... Args>
+    Expr* make_expr(Args&&... args) {
+        return tree_.arena.make<Expr>(std::forward<Args>(args)...);
+    }
+
     const Token* expect(TokenKind);
 
     Expr* parse_unary_operator();

@@ -104,7 +104,7 @@ Expr* Parser::parse_unary_operator() {
         return nullptr;
     }
 
-    return tree_.make<Expr>(Operator{
+    return make_expr(Operator{
         .kind = *kind,
         .right = right,
     });
@@ -130,7 +130,7 @@ Expr* Parser::parse_binary_operator(int min_prec) {
             break;
         }
 
-        left = tree_.make<Expr>(Operator{
+        left = make_expr(Operator{
             .kind = *kind,
             .left = left,
             .right = right,
@@ -176,7 +176,7 @@ Expr* Parser::parse_primary_expr() {
 
 Expr* Parser::parse_name() {
     if (auto* tok = expect(TokenKind::name)) {
-        return tree_.make<Expr>(Name{
+        return make_expr(Name{
             .value = tok->view,
         });
     }
@@ -195,7 +195,7 @@ Expr* Parser::parse_literal() {
     auto* tok = stream_.current();
     stream_.next();
 
-    return tree_.make<Expr>(Literal{
+    return make_expr(Literal{
         .kind = *lit_kind,
         .value = tok->view,
     });
