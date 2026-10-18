@@ -36,6 +36,10 @@ public:
     std::span<T> copy(std::span<const T> src) {
         static_assert(std::is_trivially_destructible_v<T>);
 
+        if (src.empty()) {
+            return {};
+        }
+
         T* p = static_cast<T*>(allocate(src.size_bytes(), alignof(T)));
         std::uninitialized_copy_n(src.data(), src.size(), p);
         return {p, src.size()};
