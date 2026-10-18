@@ -3,7 +3,9 @@
 
 #include <algorithm>
 #include <cassert>
+#include <cstddef>
 #include <memory>
+#include <span>
 #include <type_traits>
 #include <utility>
 #include <vector>
@@ -12,6 +14,7 @@
 
 namespace lovebird {
 
+// Simple bump allocator for the compiler.
 class Arena {
 public:
     Arena() = default;
@@ -25,8 +28,17 @@ public:
     T* make(Args&&... args) {
         static_assert(std::is_trivially_destructible_v<T>);
 
-        auto* p = static_cast<T*>(allocate(sizeof(T), alignof(T)));
+        T* p = static_cast<T*>(allocate(sizeof(T), alignof(T)));
         return std::construct_at(p, std::forward<Args>(args)...);
+    }
+
+    template <class T>
+    std::span<T> copy(std::span<const T> src) {
+        static_assert(std::is_trivially_destructible_v<T>);
+
+        T* p = static_cast<T*>(allocate(src.size_bytes(), alignof(T)));
+        std::uninitialized_copy_n(src.data(), src.size(), p);
+        return {p, src.size()};
     }
 
 private:
