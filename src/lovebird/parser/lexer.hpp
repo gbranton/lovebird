@@ -17,7 +17,7 @@ public:
     Lexer(std::string_view source, DiagnosticEmitter& diagnostic_emitter);
 
     // Advances the lexer and returns the next token.
-    std::optional<Token> lex();
+    Token lex();
 
 private:
     SourceStream stream_;

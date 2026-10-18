@@ -18,30 +18,30 @@ Lexer::Lexer(std::string_view source, DiagnosticEmitter& diagnostic_emitter)
       diagnostic_emitter_{diagnostic_emitter} {
 }
 
-std::optional<Token> Lexer::lex() {
+Token Lexer::lex() {
     skip_trivia();
 
     if (stream_.done()) {
-        return std::nullopt;
+        return {.kind = TokenKind::end};
     }
 
     token_start_ = stream_.iterator();
 
     if (auto tok = lex_name_or_keyword()) {
-        return tok;
+        return *tok;
     }
     if (auto tok = lex_punctuation()) {
-        return tok;
+        return *tok;
     }
     if (auto tok = lex_numeric_literal()) {
-        return tok;
+        return *tok;
     }
     if (auto tok = lex_char_literal()) {
-        return tok;
+        return *tok;
     }
 
     emit_unexpected_char_diagnostic();
-    return std::nullopt;
+    return {.kind = TokenKind::end};
 }
 
 std::string_view Lexer::token_view() const {
@@ -411,8 +411,12 @@ std::vector<Token> lex_all(std::string_view source,
                            DiagnosticEmitter& diagnostic_emitter) {
     Lexer lexer{source, diagnostic_emitter};
     std::vector<Token> tokens;
-    while (auto token = lexer.lex()) {
-        tokens.push_back(*token);
+    while (true) {
+        auto token = lexer.lex();
+        if (token.kind == TokenKind::end) {
+            break;
+        }
+        tokens.push_back(token);
     }
     return tokens;
 }
