@@ -76,6 +76,11 @@ protected:
         return tree_.arena.make<Expr>(std::forward<T>(expr));
     }
 
+    template <class T>
+    Stmt* make_stmt(T&& stmt) {
+        return tree_.arena.make<Stmt>(std::forward<T>(stmt));
+    }
+
     Expr* name(std::string_view value) {
         return make_expr(Name{.value = value});
     }
@@ -123,6 +128,16 @@ protected:
 
     Expr* multiply_op(Expr* left, Expr* right) {
         return binary_op(OperatorKind::multiply, left, right);
+    }
+
+    Expr* block(std::span<Stmt* const> stmts) {
+        return make_expr(Block{
+            .statements = tree_.arena.copy<Stmt*>(stmts),
+        });
+    }
+
+    Stmt* expr_stmt(Expr* expr) {
+        return make_stmt(ExprStmt{.expr = expr});
     }
 };
 
@@ -213,6 +228,21 @@ TEST_F(ParserTest, ParseParenthesizedExpression) {
               multiply_op(add_op(int_lit("1"), int_lit("2")), int_lit("3")));
     test_case("1 + (2 * 3)",
               add_op(int_lit("1"), multiply_op(int_lit("2"), int_lit("3"))));
+}
+
+TEST_F(ParserTest, ParseBlock) {
+    auto test_case = [&](std::string_view source, Expr* expected) {
+        parse_expr_and_expect_tree(source, expected);
+        expect_no_diagnostics();
+    };
+    test_case("()", block({}));
+    test_case("(10;)", block({expr_stmt(int_lit("10"))}));
+    test_case("(1; 2; 3 + 4)",
+              block({
+                  expr_stmt(int_lit("1")),
+                  expr_stmt(int_lit("2")),
+                  expr_stmt(add_op(int_lit("3"), int_lit("4"))),
+              }));
 }
 
 TEST_F(ParserTest, EmitUnclosedBlock) {

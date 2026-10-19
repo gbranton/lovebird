@@ -8,6 +8,7 @@
 #include "lovebird/diagnostic/diagnostic_emitter.hpp"
 #include "lovebird/parser/token_stream.hpp"
 #include "lovebird/syntax/expr.hpp"
+#include "lovebird/syntax/stmt.hpp"
 #include "lovebird/syntax/syntax_tree.hpp"
 #include "lovebird/syntax/token.hpp"
 
@@ -78,6 +79,14 @@ Parser::Parser(TokenStream stream,
 
 Expr* Parser::parse_expr() {
     return parse_binary_operator(0);
+}
+
+Stmt* Parser::parse_stmt() {
+    auto* expr = parse_expr();
+    if (!expr) {
+        return nullptr;
+    }
+    return make_stmt(ExprStmt{.expr = expr});
 }
 
 const Token* Parser::expect(TokenKind kind) {
@@ -205,9 +214,35 @@ Expr* Parser::parse_block() {
     if (!expect(TokenKind::paren_left)) {
         return nullptr;
     }
-    auto* inner = parse_expr();
+
+    std::vector<Stmt*> stmts;
+    bool trailing_semicolon = false;
+
+    if (auto* first_stmt = parse_stmt()) {
+        stmts.push_back(first_stmt);
+
+        while (stream_.match(TokenKind::semicolon)) {
+            auto* next_stmt = parse_stmt();
+            if (!next_stmt) {
+                trailing_semicolon = true;
+                break;
+            }
+            stmts.push_back(next_stmt);
+        }
+    }
+
     expect(TokenKind::paren_right);
-    return inner;
+
+    // Special case for a single expression without a trailing semicolon.
+    if (stmts.size() == 1 && !trailing_semicolon) {
+        if (auto* expr_stmt = std::get_if<ExprStmt>(stmts.at(0))) {
+            return expr_stmt->expr;
+        }
+    }
+
+    return make_expr(Block{
+        .statements = tree_.arena.copy<Stmt*>(stmts),
+    });
 }
 
 }  // namespace lovebird

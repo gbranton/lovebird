@@ -7,6 +7,7 @@
 #include "lovebird/diagnostic/diagnostic_emitter.hpp"
 #include "lovebird/parser/token_stream.hpp"
 #include "lovebird/syntax/expr.hpp"
+#include "lovebird/syntax/stmt.hpp"
 #include "lovebird/syntax/syntax_tree.hpp"
 #include "lovebird/syntax/token.hpp"
 
@@ -19,6 +20,7 @@ public:
            DiagnosticEmitter& diagnostic_emitter);
 
     Expr* parse_expr();
+    Stmt* parse_stmt();
 
 private:
     TokenStream stream_;
@@ -28,6 +30,11 @@ private:
     template <class... Args>
     Expr* make_expr(Args&&... args) {
         return tree_.arena.make<Expr>(std::forward<Args>(args)...);
+    }
+
+    template <class... Args>
+    Stmt* make_stmt(Args&&... args) {
+        return tree_.arena.make<Stmt>(std::forward<Args>(args)...);
     }
 
     const Token* expect(TokenKind);
