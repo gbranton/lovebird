@@ -1,22 +1,28 @@
 #ifndef LOVEBIRD_SYNTAX_STMT_HPP
 #define LOVEBIRD_SYNTAX_STMT_HPP
 
+#include <string_view>
 #include <variant>
 
 namespace lovebird {
 
-struct Decl;
 struct Expr;
-
-struct DeclStmt {
-    Decl* decl;
-};
+struct Item;
 
 struct ExprStmt {
     Expr* expr;
 };
 
-using StmtVariant = std::variant<DeclStmt, ExprStmt>;
+struct ItemStmt {
+    Item* item;
+};
+
+struct LetStmt {
+    std::string_view name;
+    Expr* value;
+};
+
+using StmtVariant = std::variant<ExprStmt, ItemStmt, LetStmt>;
 
 struct Stmt : StmtVariant {};
 

@@ -6,8 +6,8 @@
 
 #include <gtest/gtest.h>
 
-#include "lovebird/syntax/decl.hpp"
 #include "lovebird/syntax/expr.hpp"
+#include "lovebird/syntax/item.hpp"
 #include "lovebird/syntax/stmt.hpp"
 
 namespace lovebird {
@@ -39,14 +39,8 @@ void expect_node_variants_equal(const T& actual, const T& expected) {
 
 }  // namespace
 
-void expect_equal(const Decl& actual, const Decl& expected) {
-    expect_node_variants_equal(actual, expected);
-}
-
-void expect_equal(const LetDecl& actual, const LetDecl& expected) {
-    EXPECT_EQ(actual.name, expected.name);
-    expect_not_null_and_equal(actual.value, expected.value);
-}
+// ------------------------------------------------------------
+// Expressions
 
 void expect_equal(const Expr& actual, const Expr& expected) {
     expect_node_variants_equal(actual, expected);
@@ -84,16 +78,42 @@ void expect_equal(const Block& actual, const Block& expected) {
     }
 }
 
+// ------------------------------------------------------------
+// Items
+
+void expect_equal(const Item& actual, const Item& expected) {
+    expect_node_variants_equal(actual, expected);
+}
+
+void expect_equal(const FunctionItem& actual, const FunctionItem& expected) {
+    EXPECT_EQ(actual.name, expected.name);
+
+    ASSERT_EQ(actual.parameters.size(), expected.parameters.size());
+    for (std::size_t i = 0; i < actual.parameters.size(); ++i) {
+        EXPECT_EQ(actual.parameters[i].name, expected.parameters[i].name);
+    }
+
+    expect_not_null_and_equal(actual.body, expected.body);
+}
+
+// ------------------------------------------------------------
+// Statements
+
 void expect_equal(const Stmt& actual, const Stmt& expected) {
     expect_node_variants_equal(actual, expected);
 }
 
-void expect_equal(const DeclStmt& actual, const DeclStmt& expected) {
-    expect_not_null_and_equal(actual.decl, expected.decl);
-}
-
 void expect_equal(const ExprStmt& actual, const ExprStmt& expected) {
     expect_not_null_and_equal(actual.expr, expected.expr);
+}
+
+void expect_equal(const ItemStmt& actual, const ItemStmt& expected) {
+    expect_not_null_and_equal(actual.item, expected.item);
+}
+
+void expect_equal(const LetStmt& actual, const LetStmt& expected) {
+    EXPECT_EQ(actual.name, expected.name);
+    expect_not_null_and_equal(actual.value, expected.value);
 }
 
 }  // namespace lovebird
