@@ -27,14 +27,9 @@ private:
     SyntaxTree& tree_;
     DiagnosticEmitter& diagnostic_emitter_;
 
-    template <class... Args>
-    Expr* make_expr(Args&&... args) {
-        return tree_.arena.make<Expr>(std::forward<Args>(args)...);
-    }
-
-    template <class... Args>
-    Stmt* make_stmt(Args&&... args) {
-        return tree_.arena.make<Stmt>(std::forward<Args>(args)...);
+    template <class T, class... Args>
+    T* make(Args&&... args) {
+        return tree_.arena.make<T>(std::forward<Args>(args)...);
     }
 
     const Token* expect(TokenKind);

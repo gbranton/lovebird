@@ -86,7 +86,7 @@ Stmt* Parser::parse_stmt() {
     if (!expr) {
         return nullptr;
     }
-    return make_stmt(ExprStmt{.expr = expr});
+    return make<Stmt>(ExprStmt{.expr = expr});
 }
 
 const Token* Parser::expect(TokenKind kind) {
@@ -113,7 +113,7 @@ Expr* Parser::parse_unary_operator() {
         return nullptr;
     }
 
-    return make_expr(Operator{
+    return make<Expr>(Operator{
         .kind = *kind,
         .right = right,
     });
@@ -139,7 +139,7 @@ Expr* Parser::parse_binary_operator(int min_prec) {
             break;
         }
 
-        left = make_expr(Operator{
+        left = make<Expr>(Operator{
             .kind = *kind,
             .left = left,
             .right = right,
@@ -185,7 +185,7 @@ Expr* Parser::parse_primary_expr() {
 
 Expr* Parser::parse_name() {
     if (auto* tok = expect(TokenKind::name)) {
-        return make_expr(Name{
+        return make<Expr>(Name{
             .value = tok->view,
         });
     }
@@ -204,7 +204,7 @@ Expr* Parser::parse_literal() {
     auto* tok = stream_.current();
     stream_.next();
 
-    return make_expr(Literal{
+    return make<Expr>(Literal{
         .kind = *lit_kind,
         .value = tok->view,
     });
@@ -240,7 +240,7 @@ Expr* Parser::parse_block() {
         }
     }
 
-    return make_expr(Block{
+    return make<Expr>(Block{
         .statements = tree_.arena.copy<Stmt*>(stmts),
     });
 }
