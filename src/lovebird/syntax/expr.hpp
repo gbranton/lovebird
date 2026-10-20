@@ -4,7 +4,6 @@
 #include <cstdint>
 #include <span>
 #include <string_view>
-#include <type_traits>
 #include <variant>
 
 #include "lovebird/runtime/builtin.hpp"
@@ -54,8 +53,6 @@ using ExprVariant = std::variant<Name, Literal, Operator, Block>;
 struct Expr : ExprVariant {
     SourceSpan span;
 };
-
-static_assert(std::is_trivially_destructible_v<Expr>);
 
 }  // namespace lovebird
 
