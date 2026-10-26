@@ -21,6 +21,11 @@ void expect_equal(const Operator& actual, const Operator& expected);
 void expect_equal(const Block& actual, const Block& expected);
 
 // ------------------------------------------------------------
+// Type Expressions
+
+void expect_equal(const TypeExpr& actual, const TypeExpr& expected);
+
+// ------------------------------------------------------------
 // Items
 
 void expect_equal(const Item& actual, const Item& expected);

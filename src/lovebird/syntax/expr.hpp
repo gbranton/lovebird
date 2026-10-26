@@ -54,6 +54,12 @@ struct Expr : ExprVariant {
     SourceSpan span;
 };
 
+using TypeExprVariant = std::variant<Name>;
+
+struct TypeExpr : TypeExprVariant {
+    SourceSpan span;
+};
+
 }  // namespace lovebird
 
 #endif  // ifndef LOVEBIRD_SYNTAX_EXPR_HPP

@@ -79,6 +79,13 @@ void expect_equal(const Block& actual, const Block& expected) {
 }
 
 // ------------------------------------------------------------
+// Type Expressions
+
+void expect_equal(const TypeExpr& actual, const TypeExpr& expected) {
+    expect_node_variants_equal(actual, expected);
+}
+
+// ------------------------------------------------------------
 // Items
 
 void expect_equal(const Item& actual, const Item& expected) {
