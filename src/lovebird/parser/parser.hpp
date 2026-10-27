@@ -20,6 +20,7 @@ public:
            DiagnosticEmitter& diagnostic_emitter);
 
     Expr* parse_expr();
+    TypeExpr* parse_type_expr();
     Stmt* parse_stmt();
 
 private:
@@ -45,6 +46,8 @@ private:
     Expr* parse_name();
     Expr* parse_literal();
     Expr* parse_block();
+
+    TypeExpr* parse_type_name();
 };
 
 }  // namespace lovebird

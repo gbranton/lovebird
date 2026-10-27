@@ -81,6 +81,10 @@ Expr* Parser::parse_expr() {
     return parse_binary_operator(0);
 }
 
+TypeExpr* Parser::parse_type_expr() {
+    return parse_type_name();
+}
+
 Stmt* Parser::parse_stmt() {
     auto* expr = parse_expr();
     if (!expr) {
@@ -243,6 +247,15 @@ Expr* Parser::parse_block() {
     return make<Expr>(Block{
         .statements = tree_.arena.copy<Stmt*>(stmts),
     });
+}
+
+TypeExpr* Parser::parse_type_name() {
+    if (auto* tok = expect(TokenKind::name)) {
+        return make<TypeExpr>(Name{
+            .value = tok->view,
+        });
+    }
+    return nullptr;
 }
 
 }  // namespace lovebird

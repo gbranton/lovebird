@@ -62,6 +62,14 @@ protected:
         expect_equal(*actual, *expected);
     }
 
+    void parse_type_expr_and_expect_tree(std::string_view source,
+                                         TypeExpr* expected) {
+        auto parser = make_parser(source);
+        auto* actual = parser.parse_type_expr();
+        ASSERT_NE(actual, nullptr);
+        expect_equal(*actual, *expected);
+    }
+
     void expect_diagnostics(std::span<const Diagnostic> expected) const {
         EXPECT_THAT(diagnostic_emitter_.diagnostics(),
                     Pointwise(DiagnosticMessageEqual(), expected));
@@ -74,6 +82,11 @@ protected:
     template <class T>
     Expr* make_expr(T&& expr) {
         return tree_.arena.make<Expr>(std::forward<T>(expr));
+    }
+
+    template <class T>
+    TypeExpr* make_type_expr(T&& type_expr) {
+        return tree_.arena.make<TypeExpr>(std::forward<T>(type_expr));
     }
 
     template <class T>
@@ -134,6 +147,10 @@ protected:
         return make_expr(Block{
             .statements = tree_.arena.copy<Stmt*>(stmts),
         });
+    }
+
+    TypeExpr* type_name(std::string_view value) {
+        return make_type_expr(Name{.value = value});
     }
 
     Stmt* expr_stmt(Expr* expr) {
@@ -250,6 +267,13 @@ TEST_F(ParserTest, EmitUnclosedBlock) {
     Expr* expr = add_op(int_lit("1"), int_lit("2"));
     parse_expr_and_expect_tree(source, expr);
     expect_diagnostics({Diagnostic{.message = "expected )"}});
+}
+
+TEST_F(ParserTest, ParseTypeName) {
+    std::string_view source = "List";
+    auto* type_expr = type_name("List");
+    parse_type_expr_and_expect_tree(source, type_expr);
+    expect_no_diagnostics();
 }
 
 }  // namespace
