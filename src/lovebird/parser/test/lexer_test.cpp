@@ -62,10 +62,14 @@ protected:
     }
 };
 
-TEST_F(LexerTest, SkipTrivia) {
-    std::string_view source =
-        "// Hello there!"
-        " \t\n\r";
+TEST_F(LexerTest, SkipWhitespace) {
+    std::string_view source = " \t\n\r";
+    lex_and_expect_no_tokens(source);
+    expect_no_diagnostics();
+}
+
+TEST_F(LexerTest, SkipComment) {
+    std::string_view source = "// Hello there!";
     lex_and_expect_no_tokens(source);
     expect_no_diagnostics();
 }
