@@ -79,7 +79,7 @@ public:
     // Advances the stream if the current character matches a predicate.
     template <std::predicate<Char> Predicate>
     bool match(Predicate&& p) {
-        if (p(current())) {
+        if (!done() && p(current())) {
             ++it_;
             return true;
         }
