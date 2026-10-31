@@ -82,7 +82,10 @@ Expr* Parser::parse_expr() {
 }
 
 TypeExpr* Parser::parse_type_expr() {
-    return parse_type_name();
+    if (stream_.kind() == TokenKind::name) {
+        return parse_type_name();
+    }
+    return nullptr;
 }
 
 Item* Parser::parse_item() {
@@ -296,11 +299,14 @@ std::optional<Field> Parser::parse_field(bool require_name, bool allow_pub) {
         }
     }
 
-    if (name) {
-        expect(TokenKind::colon);
-    }
+    bool missing_colon = name && !stream_.match(TokenKind::colon);
 
     auto type = parse_type_expr();
+    if (type && missing_colon) {
+        diagnostic_emitter_.emit(Diagnostic{
+            .message = "expected :",
+        });
+    }
     if (!type) {
         diagnostic_emitter_.emit(Diagnostic{
             .message = "expected field type",
@@ -348,16 +354,14 @@ Item* Parser::parse_brace_struct_body(std::string_view name) {
 
     std::vector<Field> fields;
 
-    while (stream_.kind() != TokenKind::brace_right) {
+    while (!stream_.done() && stream_.kind() != TokenKind::brace_right) {
         auto field = parse_field(true, true);
-        if (!field) {
-            break;
-        }
-
-        fields.push_back(*field);
-
-        if (!expect(TokenKind::comma)) {
-            break;
+        if (field) {
+            fields.push_back(*field);
+            expect(TokenKind::comma);
+        } else {
+            stream_.skip_until({TokenKind::brace_right, TokenKind::comma});
+            stream_.skip(TokenKind::comma);
         }
     }
 

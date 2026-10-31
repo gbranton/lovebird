@@ -77,10 +77,7 @@ TEST_F(ParserTest, ParseBraceStructMissingFieldName) {
     )";
     auto* expected = brace_struct("Puzzle", {});
     parse_item_and_expect_tree(source, expected);
-    expect_diagnostics({
-        Diagnostic{.message = "expected name"},
-        Diagnostic{.message = "expected }"},
-    });
+    expect_diagnostics({Diagnostic{.message = "expected name"}});
 }
 
 TEST_F(ParserTest, ParseBraceStructMissingColonBeforeFieldType) {
@@ -105,12 +102,7 @@ TEST_F(ParserTest, ParseBraceStructMissingFieldType) {
     )";
     auto* expected = brace_struct("Puzzle", {});
     parse_item_and_expect_tree(source, expected);
-    expect_diagnostics({
-        Diagnostic{.message = "expected :"},
-        Diagnostic{.message = "expected name"},
-        Diagnostic{.message = "expected field type"},
-        Diagnostic{.message = "expected }"},
-    });
+    expect_diagnostics({Diagnostic{.message = "expected field type"}});
 }
 
 }  // namespace

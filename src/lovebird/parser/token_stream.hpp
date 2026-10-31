@@ -1,7 +1,9 @@
 #ifndef LOVEBIRD_PARSER_TOKEN_STREAM_HPP
 #define LOVEBIRD_PARSER_TOKEN_STREAM_HPP
 
+#include <algorithm>
 #include <cstddef>
+#include <initializer_list>
 #include <span>
 
 #include "lovebird/syntax/token.hpp"
@@ -64,6 +66,20 @@ public:
             return tok;
         }
         return nullptr;
+    }
+
+    void skip(TokenKind target) {
+        if (kind() == target) {
+            next();
+        }
+    }
+
+    // Skip tokens until one of stop kinds is found.
+    void skip_until(std::initializer_list<TokenKind> stop_kinds) {
+        while (!done() &&
+               std::ranges::find(stop_kinds, kind()) == stop_kinds.end()) {
+            next();
+        }
     }
 
 private:
