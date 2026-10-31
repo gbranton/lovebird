@@ -273,6 +273,48 @@ TypeExpr* Parser::parse_type_name() {
     return nullptr;
 }
 
+bool Parser::parse_pub(bool allow_pub) {
+    if (!stream_.match(TokenKind::keyword_pub)) {
+        return false;
+    }
+    if (!allow_pub) {
+        diagnostic_emitter_.emit(Diagnostic{
+            .message = "public modifier is not allowed here",
+        });
+    }
+    return true;
+}
+
+std::optional<Field> Parser::parse_field(bool require_name, bool allow_pub) {
+    bool pub = parse_pub(allow_pub);
+
+    std::optional<std::string_view> name;
+    if (require_name || stream_.kind() == TokenKind::name) {
+        name = parse_name();
+        if (!name) {
+            return std::nullopt;
+        }
+    }
+
+    if (name) {
+        expect(TokenKind::colon);
+    }
+
+    auto type = parse_type_expr();
+    if (!type) {
+        diagnostic_emitter_.emit(Diagnostic{
+            .message = "expected field type",
+        });
+        return std::nullopt;
+    }
+
+    return Field{
+        .name = name,
+        .type = type,
+        .pub = pub,
+    };
+}
+
 Item* Parser::parse_struct() {
     if (!expect(TokenKind::keyword_struct)) {
         return nullptr;
@@ -283,11 +325,48 @@ Item* Parser::parse_struct() {
         return nullptr;
     }
 
+    switch (stream_.kind()) {
+        case TokenKind::brace_left:
+            return parse_brace_struct_body(*name);
+        default:
+            return parse_unit_struct_body(*name);
+    }
+}
+
+Item* Parser::parse_unit_struct_body(std::string_view name) {
     expect(TokenKind::semicolon);
+    return make<Item>(Struct{
+        .name = name,
+        .kind = StructKind::unit,
+    });
+}
+
+Item* Parser::parse_brace_struct_body(std::string_view name) {
+    if (!expect(TokenKind::brace_left)) {
+        return nullptr;
+    }
+
+    std::vector<Field> fields;
+
+    while (stream_.kind() != TokenKind::brace_right) {
+        auto field = parse_field(true, true);
+        if (!field) {
+            break;
+        }
+
+        fields.push_back(*field);
+
+        if (!expect(TokenKind::comma)) {
+            break;
+        }
+    }
+
+    expect(TokenKind::brace_right);
 
     return make<Item>(Struct{
-        .name = *name,
-        .kind = StructKind::unit,
+        .name = name,
+        .kind = StructKind::brace,
+        .fields = tree_.arena.copy<Field>(fields),
     });
 }
 

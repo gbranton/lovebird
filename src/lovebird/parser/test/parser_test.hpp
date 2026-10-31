@@ -71,6 +71,12 @@ protected:
         expect_equal(*actual, *expected);
     }
 
+    void parse_item_and_expect_null(std::string_view source) {
+        auto parser = make_parser(source);
+        auto* actual = parser.parse_item();
+        EXPECT_EQ(actual, nullptr);
+    }
+
     void parse_item_and_expect_tree(std::string_view source, Item* expected) {
         auto parser = make_parser(source);
         auto* actual = parser.parse_item();
@@ -166,10 +172,34 @@ protected:
         return make_type_expr(Name{.value = value});
     }
 
-    Item* function(std::string_view name, StructKind kind) {
+    Field field(std::string_view name, TypeExpr* type) {
+        return {
+            .name = name,
+            .type = type,
+            .pub = false,
+        };
+    }
+
+    Field pub_field(std::string_view name, TypeExpr* type) {
+        return {
+            .name = name,
+            .type = type,
+            .pub = true,
+        };
+    }
+
+    Item* unit_struct(std::string_view name) {
         return make_item(Struct{
             .name = name,
-            .kind = kind,
+            .kind = StructKind::unit,
+        });
+    }
+
+    Item* brace_struct(std::string_view name, std::span<const Field> fields) {
+        return make_item(Struct{
+            .name = name,
+            .kind = StructKind::brace,
+            .fields = tree_.arena.copy<Field>(fields),
         });
     }
 

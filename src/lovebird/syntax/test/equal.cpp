@@ -108,8 +108,8 @@ void expect_equal(const Field& actual, const Field& expected) {
 
 void expect_equal(const Struct& actual, const Struct& expected) {
     EXPECT_EQ(actual.name, expected.name);
-    expect_spans_equal(actual.fields, expected.fields);
     EXPECT_EQ(actual.kind, expected.kind);
+    expect_spans_equal(actual.fields, expected.fields);
 }
 
 void expect_equal(const EnumCase& actual, const EnumCase& expected) {

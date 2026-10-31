@@ -27,8 +27,8 @@ enum class StructKind {
 
 struct Struct {
     std::string_view name;
-    std::span<Field> fields;
     StructKind kind = StructKind::unit;
+    std::span<Field> fields;
 };
 
 struct EnumCase {

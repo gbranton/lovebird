@@ -55,7 +55,12 @@ private:
 
     TypeExpr* parse_type_name();
 
+    bool parse_pub(bool allow_pub);
+    std::optional<Field> parse_field(bool require_name, bool allow_pub);
+
     Item* parse_struct();
+    Item* parse_unit_struct_body(std::string_view name);
+    Item* parse_brace_struct_body(std::string_view name);
 };
 
 }  // namespace lovebird
