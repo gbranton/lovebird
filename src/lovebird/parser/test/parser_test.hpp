@@ -16,6 +16,7 @@
 #include "lovebird/parser/parser.hpp"
 #include "lovebird/parser/token_stream.hpp"
 #include "lovebird/syntax/expr.hpp"
+#include "lovebird/syntax/item.hpp"
 #include "lovebird/syntax/syntax_tree.hpp"
 #include "lovebird/syntax/test/equal.hpp"
 #include "lovebird/syntax/token.hpp"
@@ -70,6 +71,13 @@ protected:
         expect_equal(*actual, *expected);
     }
 
+    void parse_item_and_expect_tree(std::string_view source, Item* expected) {
+        auto parser = make_parser(source);
+        auto* actual = parser.parse_item();
+        ASSERT_NE(actual, nullptr);
+        expect_equal(*actual, *expected);
+    }
+
     void expect_diagnostics(std::span<const Diagnostic> expected) const {
         EXPECT_THAT(diagnostic_emitter_.diagnostics(),
                     Pointwise(DiagnosticMessageEqual(), expected));
@@ -87,6 +95,11 @@ protected:
     template <class T>
     TypeExpr* make_type_expr(T&& type_expr) {
         return tree_.arena.make<TypeExpr>(std::forward<T>(type_expr));
+    }
+
+    template <class T>
+    Item* make_item(T&& item) {
+        return tree_.arena.make<Item>(std::forward<T>(item));
     }
 
     template <class T>
@@ -151,6 +164,13 @@ protected:
 
     TypeExpr* type_name(std::string_view value) {
         return make_type_expr(Name{.value = value});
+    }
+
+    Item* function(std::string_view name, StructKind kind) {
+        return make_item(Struct{
+            .name = name,
+            .kind = kind,
+        });
     }
 
     Stmt* expr_stmt(Expr* expr) {

@@ -85,6 +85,10 @@ TypeExpr* Parser::parse_type_expr() {
     return parse_type_name();
 }
 
+Item* Parser::parse_item() {
+    return parse_struct();
+}
+
 Stmt* Parser::parse_stmt() {
     auto* expr = parse_expr();
     if (!expr) {
@@ -101,6 +105,14 @@ const Token* Parser::expect(TokenKind kind) {
         });
     }
     return tok;
+}
+
+std::optional<std::string_view> Parser::parse_name() {
+    auto tok = expect(TokenKind::name);
+    if (!tok) {
+        return std::nullopt;
+    }
+    return tok->view;
 }
 
 Expr* Parser::parse_unary_operator() {
@@ -176,7 +188,7 @@ std::pair<std::optional<OperatorKind>, int> Parser::parse_binary_operator_kind(
 Expr* Parser::parse_primary_expr() {
     switch (stream_.kind()) {
         case TokenKind::name:
-            return parse_name();
+            return parse_name_expr();
         case TokenKind::literal_int:
         case TokenKind::literal_char:
             return parse_literal();
@@ -189,13 +201,14 @@ Expr* Parser::parse_primary_expr() {
     }
 }
 
-Expr* Parser::parse_name() {
-    if (auto* tok = expect(TokenKind::name)) {
-        return make<Expr>(Name{
-            .value = tok->view,
-        });
+Expr* Parser::parse_name_expr() {
+    auto name = parse_name();
+    if (!name) {
+        return nullptr;
     }
-    return nullptr;
+    return make<Expr>(Name{
+        .value = *name,
+    });
 }
 
 Expr* Parser::parse_literal() {
@@ -258,6 +271,24 @@ TypeExpr* Parser::parse_type_name() {
         });
     }
     return nullptr;
+}
+
+Item* Parser::parse_struct() {
+    if (!expect(TokenKind::keyword_struct)) {
+        return nullptr;
+    }
+
+    auto name = parse_name();
+    if (!name) {
+        return nullptr;
+    }
+
+    expect(TokenKind::semicolon);
+
+    return make<Item>(Struct{
+        .name = *name,
+        .kind = StructKind::unit,
+    });
 }
 
 }  // namespace lovebird

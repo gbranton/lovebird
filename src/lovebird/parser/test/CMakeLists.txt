@@ -3,6 +3,7 @@ target_sources(
     PRIVATE
         lexer_test.cpp
         parse_expr_test.cpp
+        parse_item_test.cpp
         parse_type_expr_test.cpp
 )
 
