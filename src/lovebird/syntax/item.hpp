@@ -1,6 +1,7 @@
 #ifndef LOVEBIRD_SYNTAX_ITEM_HPP
 #define LOVEBIRD_SYNTAX_ITEM_HPP
 
+#include <optional>
 #include <span>
 #include <string_view>
 #include <variant>
@@ -10,18 +11,43 @@
 namespace lovebird {
 
 struct Expr;
+struct TypeExpr;
 
-struct Parameter {
-    std::string_view name;
+struct Field {
+    std::optional<std::string_view> name;
+    TypeExpr* type = nullptr;
+    bool pub = false;
 };
 
-struct FunctionItem {
-    std::string_view name;
-    std::span<Parameter> parameters;
-    Expr* body;
+enum class StructKind {
+    unit,
+    bracket,
+    brace,
 };
 
-using ItemVariant = std::variant<FunctionItem>;
+struct Struct {
+    std::string_view name;
+    std::span<Field> fields;
+    StructKind kind = StructKind::unit;
+};
+
+struct EnumCase {
+    std::string_view name;
+    std::span<Field> fields;
+};
+
+struct Enum {
+    std::string_view name;
+    std::span<EnumCase> cases;
+};
+
+struct Function {
+    std::string_view name;
+    std::span<Field> params;
+    Expr* body = nullptr;
+};
+
+using ItemVariant = std::variant<Struct, Enum, Function>;
 
 struct Item : ItemVariant {
     SourceSpan span;

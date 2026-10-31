@@ -30,7 +30,15 @@ void expect_equal(const TypeExpr& actual, const TypeExpr& expected);
 
 void expect_equal(const Item& actual, const Item& expected);
 
-void expect_equal(const FunctionItem& actual, const FunctionItem& expected);
+void expect_equal(const Field& actual, const Field& expected);
+
+void expect_equal(const Struct& actual, const Struct& expected);
+
+void expect_equal(const EnumCase& actual, const EnumCase& expected);
+
+void expect_equal(const Enum& actual, const Enum& expected);
+
+void expect_equal(const Function& actual, const Function& expected);
 
 // ------------------------------------------------------------
 // Statements

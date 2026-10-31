@@ -37,6 +37,14 @@ void expect_node_variants_equal(const T& actual, const T& expected) {
         expected);
 }
 
+template <class T>
+void expect_spans_equal(std::span<T> actual, std::span<T> expected) {
+    ASSERT_EQ(actual.size(), expected.size());
+    for (std::size_t i = 0; i < actual.size(); ++i) {
+        expect_equal(actual[i], expected[i]);
+    }
+}
+
 }  // namespace
 
 // ------------------------------------------------------------
@@ -92,14 +100,31 @@ void expect_equal(const Item& actual, const Item& expected) {
     expect_node_variants_equal(actual, expected);
 }
 
-void expect_equal(const FunctionItem& actual, const FunctionItem& expected) {
+void expect_equal(const Field& actual, const Field& expected) {
     EXPECT_EQ(actual.name, expected.name);
+    EXPECT_EQ(actual.pub, expected.pub);
+    expect_not_null_and_equal(actual.type, expected.type);
+}
 
-    ASSERT_EQ(actual.parameters.size(), expected.parameters.size());
-    for (std::size_t i = 0; i < actual.parameters.size(); ++i) {
-        EXPECT_EQ(actual.parameters[i].name, expected.parameters[i].name);
-    }
+void expect_equal(const Struct& actual, const Struct& expected) {
+    EXPECT_EQ(actual.name, expected.name);
+    expect_spans_equal(actual.fields, expected.fields);
+    EXPECT_EQ(actual.kind, expected.kind);
+}
 
+void expect_equal(const EnumCase& actual, const EnumCase& expected) {
+    EXPECT_EQ(actual.name, expected.name);
+    expect_spans_equal(actual.fields, expected.fields);
+}
+
+void expect_equal(const Enum& actual, const Enum& expected) {
+    EXPECT_EQ(actual.name, expected.name);
+    expect_spans_equal(actual.cases, expected.cases);
+}
+
+void expect_equal(const Function& actual, const Function& expected) {
+    EXPECT_EQ(actual.name, expected.name);
+    expect_spans_equal(actual.params, expected.params);
     expect_not_null_and_equal(actual.body, expected.body);
 }
 
