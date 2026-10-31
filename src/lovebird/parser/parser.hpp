@@ -45,6 +45,7 @@ private:
     Expr* parse_primary_expr();
     Expr* parse_name();
     Expr* parse_literal();
+    Expr* parse_parenthesized_expr();
     Expr* parse_block();
 
     TypeExpr* parse_type_name();

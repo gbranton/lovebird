@@ -181,6 +181,8 @@ Expr* Parser::parse_primary_expr() {
         case TokenKind::literal_char:
             return parse_literal();
         case TokenKind::paren_left:
+            return parse_parenthesized_expr();
+        case TokenKind::brace_left:
             return parse_block();
         default:
             return nullptr;
@@ -214,13 +216,21 @@ Expr* Parser::parse_literal() {
     });
 }
 
-Expr* Parser::parse_block() {
+Expr* Parser::parse_parenthesized_expr() {
     if (!expect(TokenKind::paren_left)) {
+        return nullptr;
+    }
+    auto inner = parse_expr();
+    expect(TokenKind::paren_right);
+    return inner;
+}
+
+Expr* Parser::parse_block() {
+    if (!expect(TokenKind::brace_left)) {
         return nullptr;
     }
 
     std::vector<Stmt*> stmts;
-    bool trailing_semicolon = false;
 
     if (auto* first_stmt = parse_stmt()) {
         stmts.push_back(first_stmt);
@@ -228,21 +238,13 @@ Expr* Parser::parse_block() {
         while (stream_.match(TokenKind::semicolon)) {
             auto* next_stmt = parse_stmt();
             if (!next_stmt) {
-                trailing_semicolon = true;
                 break;
             }
             stmts.push_back(next_stmt);
         }
     }
 
-    expect(TokenKind::paren_right);
-
-    // Special case for a single expression without a trailing semicolon.
-    if (stmts.size() == 1 && !trailing_semicolon) {
-        if (auto* expr_stmt = std::get_if<ExprStmt>(stmts.at(0))) {
-            return expr_stmt->expr;
-        }
-    }
+    expect(TokenKind::brace_right);
 
     return make<Expr>(Block{
         .statements = tree_.arena.copy<Stmt*>(stmts),

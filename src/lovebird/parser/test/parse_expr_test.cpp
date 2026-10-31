@@ -100,14 +100,22 @@ TEST_F(ParserTest, ParseParenthesizedExpression) {
               add_op(int_lit("1"), multiply_op(int_lit("2"), int_lit("3"))));
 }
 
+TEST_F(ParserTest, EmitUnclosedParenthesizedExpression) {
+    std::string_view source = "(1 + 2";
+    Expr* expr = add_op(int_lit("1"), int_lit("2"));
+    parse_expr_and_expect_tree(source, expr);
+    expect_diagnostics({Diagnostic{.message = "expected )"}});
+}
+
 TEST_F(ParserTest, ParseBlock) {
     auto test_case = [&](std::string_view source, Expr* expected) {
         parse_expr_and_expect_tree(source, expected);
         expect_no_diagnostics();
     };
-    test_case("()", block({}));
-    test_case("(10;)", block({expr_stmt(int_lit("10"))}));
-    test_case("(1; 2; 3 + 4)",
+    test_case("{}", block({}));
+    test_case("{5}", block({expr_stmt(int_lit("5"))}));
+    test_case("{10;}", block({expr_stmt(int_lit("10"))}));
+    test_case("{1; 2; 3 + 4}",
               block({
                   expr_stmt(int_lit("1")),
                   expr_stmt(int_lit("2")),
@@ -116,10 +124,10 @@ TEST_F(ParserTest, ParseBlock) {
 }
 
 TEST_F(ParserTest, EmitUnclosedBlock) {
-    std::string_view source = "(1 + 2";
-    Expr* expr = add_op(int_lit("1"), int_lit("2"));
+    std::string_view source = "{1 + 2";
+    Expr* expr = block({expr_stmt(add_op(int_lit("1"), int_lit("2")))});
     parse_expr_and_expect_tree(source, expr);
-    expect_diagnostics({Diagnostic{.message = "expected )"}});
+    expect_diagnostics({Diagnostic{.message = "expected }"}});
 }
 
 }  // namespace
