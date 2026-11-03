@@ -58,6 +58,14 @@ public:
         return tok ? tok->kind : TokenKind::end;
     }
 
+    bool at(TokenKind target) const {
+        return kind() == target;
+    }
+
+    bool at(std::initializer_list<TokenKind> targets) const {
+        return std::ranges::find(targets, kind()) != targets.end();
+    }
+
     // Returns the token and advances the stream if the current token matches.
     const Token* match(TokenKind target) {
         if (kind() == target) {
