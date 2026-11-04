@@ -212,6 +212,24 @@ protected:
         });
     }
 
+    EnumCase enum_case(std::string_view name) {
+        return {.name = name};
+    }
+
+    EnumCase enum_case(std::string_view name, std::span<const Field> fields) {
+        return {
+            .name = name,
+            .fields = tree_.arena.copy<Field>(fields),
+        };
+    }
+
+    Item* enum_decl(std::string_view name, std::span<const EnumCase> cases) {
+        return make_item(Enum{
+            .name = name,
+            .cases = tree_.arena.copy<EnumCase>(cases),
+        });
+    }
+
     Stmt* expr_stmt(Expr* expr) {
         return make_stmt(ExprStmt{.expr = expr});
     }

@@ -109,7 +109,9 @@ TEST_F(ParserTest, ParseBracketStructMissingComma) {
     };
     auto* expected = bracket_struct("Vec2", fields);
     parse_item_and_expect_tree(source, expected);
-    expect_diagnostics({Diagnostic{.message = "expected field separator ,"}});
+    expect_diagnostics({
+        Diagnostic{.message = "expected parameter separator ,"},
+    });
 }
 
 TEST_F(ParserTest, ParseBracketUnexpectedDeclaration) {
@@ -233,6 +235,82 @@ TEST_F(ParserTest, ParseBraceStructMissingFieldType) {
     auto* expected = brace_struct("Puzzle", {});
     parse_item_and_expect_tree(source, expected);
     expect_diagnostics({Diagnostic{.message = "expected field type"}});
+}
+
+TEST_F(ParserTest, ParseEnum) {
+    std::string_view source = R"(
+        enum Direction {
+            north,
+            east,
+            south,
+            west,
+        }
+    )";
+    auto cases = {
+        enum_case("north"),
+        enum_case("east"),
+        enum_case("south"),
+        enum_case("west"),
+    };
+    auto* expected = enum_decl("Direction", cases);
+    parse_item_and_expect_tree(source, expected);
+    expect_no_diagnostics();
+}
+
+TEST_F(ParserTest, ParseEnumWithFields) {
+    std::string_view source = R"(
+        enum Shape {
+            circle[radius: float],
+            rectangle[width: float, height: float],
+        }
+    )";
+    auto cases = {
+        enum_case("circle", {pub_field("radius", type_name("float"))}),
+        enum_case("rectangle",
+                  {
+                      pub_field("width", type_name("float")),
+                      pub_field("height", type_name("float")),
+                  }),
+    };
+    auto* expected = enum_decl("Shape", cases);
+    parse_item_and_expect_tree(source, expected);
+    expect_no_diagnostics();
+}
+
+TEST_F(ParserTest, ParseEmptyEnum) {
+    std::string_view source = R"(
+        enum Shape {}
+    )";
+    auto* expected = enum_decl("Shape", {});
+    parse_item_and_expect_tree(source, expected);
+    expect_no_diagnostics();
+}
+
+TEST_F(ParserTest, ParseEnumMissingRightBrace) {
+    std::string_view source = R"(
+        enum Side {
+            port,
+            starboard,
+    )";
+    auto cases = {enum_case("port"), enum_case("starboard")};
+    auto* expected = enum_decl("Side", cases);
+    parse_item_and_expect_tree(source, expected);
+    expect_diagnostics({Diagnostic{.message = "expected }"}});
+}
+
+TEST_F(ParserTest, ParseEnumMissingComma) {
+    std::string_view source = R"(
+        enum Side {
+            port
+            starboard,
+        }
+    )";
+    auto cases = {enum_case("port"), enum_case("starboard")};
+    auto* expected = enum_decl("Side", cases);
+    parse_item_and_expect_tree(source, expected);
+    expect_diagnostics({
+        Diagnostic{.message = "expected case separator ,"},
+    });
 }
 
 }  // namespace

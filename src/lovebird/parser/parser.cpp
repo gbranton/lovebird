@@ -2,6 +2,7 @@
 
 #include <format>
 #include <optional>
+#include <span>
 #include <utility>
 
 #include "lovebird/diagnostic/diagnostic.hpp"
@@ -99,7 +100,14 @@ TypeExpr* Parser::parse_type_expr() {
 }
 
 Item* Parser::parse_item() {
-    return parse_struct();
+    switch (stream_.kind()) {
+        case TokenKind::keyword_struct:
+            return parse_struct();
+        case TokenKind::keyword_enum:
+            return parse_enum();
+        default:
+            return nullptr;
+    }
 }
 
 Stmt* Parser::parse_stmt() {
@@ -296,6 +304,14 @@ bool Parser::parse_pub(bool allow_pub) {
     return got_pub;
 }
 
+void Parser::parse_separator(std::string_view separator_type) {
+    if (!stream_.match(TokenKind::comma) && is_field_start(stream_.kind())) {
+        diagnostic_emitter_.emit(Diagnostic{
+            .message = std::format("expected {} separator ,", separator_type),
+        });
+    }
+}
+
 std::optional<Field> Parser::parse_field() {
     bool pub = parse_pub(true);
 
@@ -355,13 +371,6 @@ std::optional<Field> Parser::parse_param() {
     };
 }
 
-void Parser::parse_field_separator() {
-    if (!stream_.match(TokenKind::comma) && is_field_start(stream_.kind())) {
-        diagnostic_emitter_.emit(
-            Diagnostic{.message = "expected field separator ,"});
-    }
-}
-
 std::optional<std::span<Field>> Parser::parse_fields() {
     if (!expect(TokenKind::brace_left)) {
         return std::nullopt;
@@ -379,7 +388,7 @@ std::optional<std::span<Field>> Parser::parse_fields() {
                 TokenKind::comma,
             });
         }
-        parse_field_separator();
+        parse_separator("field");
     }
 
     expect(TokenKind::brace_right);
@@ -404,7 +413,7 @@ std::optional<std::span<Field>> Parser::parse_params() {
                 TokenKind::comma,
             });
         }
-        parse_field_separator();
+        parse_separator("parameter");
     }
 
     expect(TokenKind::bracket_right);
@@ -466,6 +475,68 @@ Item* Parser::parse_brace_struct_body(std::string_view name) {
         .kind = StructKind::brace,
         .fields = *fields,
     });
+}
+
+Item* Parser::parse_enum() {
+    if (!expect(TokenKind::keyword_enum)) {
+        return nullptr;
+    }
+
+    auto name = parse_name();
+    if (!name) {
+        return nullptr;
+    }
+
+    auto cases = parse_enum_cases();
+    if (!cases) {
+        return nullptr;
+    }
+
+    return make<Item>(Enum{
+        .name = *name,
+        .cases = *cases,
+    });
+}
+
+std::optional<std::span<EnumCase>> Parser::parse_enum_cases() {
+    if (!expect(TokenKind::brace_left)) {
+        return std::nullopt;
+    }
+
+    std::vector<EnumCase> cases;
+    while (stream_.at(TokenKind::name)) {
+        auto enum_case = parse_enum_case();
+        if (enum_case) {
+            cases.push_back(*enum_case);
+        } else {
+            stream_.skip_until({TokenKind::brace_right, TokenKind::comma});
+        }
+        parse_separator("case");
+    }
+
+    expect(TokenKind::brace_right);
+
+    return tree_.arena.copy<EnumCase>(cases);
+}
+
+std::optional<EnumCase> Parser::parse_enum_case() {
+    auto name = parse_name();
+    if (!name) {
+        return std::nullopt;
+    }
+
+    std::optional<std::span<Field>> fields;
+    if (stream_.kind() == TokenKind::bracket_left) {
+        fields = parse_params();
+        if (!fields) {
+            return std::nullopt;
+        }
+    }
+
+    return EnumCase{
+        .name = *name,
+        .fields = fields.value_or(std::span<Field>{}),
+    };
 }
 
 }  // namespace lovebird

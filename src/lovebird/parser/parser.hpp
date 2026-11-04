@@ -58,10 +58,10 @@ private:
 
     bool parse_pub(bool allow_pub);
 
+    void parse_separator(std::string_view separator_type);
+
     std::optional<Field> parse_field();
     std::optional<Field> parse_param();
-
-    void parse_field_separator();
 
     std::optional<std::span<Field>> parse_fields();
     std::optional<std::span<Field>> parse_params();
@@ -70,6 +70,10 @@ private:
     Item* parse_unit_struct_body(std::string_view name);
     Item* parse_bracket_struct_body(std::string_view name);
     Item* parse_brace_struct_body(std::string_view name);
+
+    Item* parse_enum();
+    std::optional<std::span<EnumCase>> parse_enum_cases();
+    std::optional<EnumCase> parse_enum_case();
 };
 
 }  // namespace lovebird
