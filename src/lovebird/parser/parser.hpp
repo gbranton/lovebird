@@ -2,6 +2,7 @@
 #define LOVEBIRD_PARSER_PARSER_HPP
 
 #include <optional>
+#include <span>
 #include <string_view>
 #include <utility>
 
@@ -56,10 +57,18 @@ private:
     TypeExpr* parse_type_name();
 
     bool parse_pub(bool allow_pub);
-    std::optional<Field> parse_field(bool require_name, bool allow_pub);
+
+    std::optional<Field> parse_field();
+    std::optional<Field> parse_param();
+
+    void parse_field_separator();
+
+    std::optional<std::span<Field>> parse_fields();
+    std::optional<std::span<Field>> parse_params();
 
     Item* parse_struct();
     Item* parse_unit_struct_body(std::string_view name);
+    Item* parse_bracket_struct_body(std::string_view name);
     Item* parse_brace_struct_body(std::string_view name);
 };
 

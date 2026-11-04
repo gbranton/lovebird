@@ -1,6 +1,7 @@
 #ifndef LOVEBIRD_PARSER_TEST_PARSER_TEST_HPP
 #define LOVEBIRD_PARSER_TEST_PARSER_TEST_HPP
 
+#include <optional>
 #include <span>
 #include <sstream>
 #include <string_view>
@@ -172,7 +173,7 @@ protected:
         return make_type_expr(Name{.value = value});
     }
 
-    Field field(std::string_view name, TypeExpr* type) {
+    Field field(std::optional<std::string_view> name, TypeExpr* type) {
         return {
             .name = name,
             .type = type,
@@ -180,7 +181,7 @@ protected:
         };
     }
 
-    Field pub_field(std::string_view name, TypeExpr* type) {
+    Field pub_field(std::optional<std::string_view> name, TypeExpr* type) {
         return {
             .name = name,
             .type = type,
@@ -192,6 +193,14 @@ protected:
         return make_item(Struct{
             .name = name,
             .kind = StructKind::unit,
+        });
+    }
+
+    Item* bracket_struct(std::string_view name, std::span<const Field> fields) {
+        return make_item(Struct{
+            .name = name,
+            .kind = StructKind::bracket,
+            .fields = tree_.arena.copy<Field>(fields),
         });
     }
 

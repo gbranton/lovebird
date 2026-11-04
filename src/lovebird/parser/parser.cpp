@@ -67,6 +67,16 @@ std::optional<LiteralKind> to_literal_kind(TokenKind kind) {
     }
 }
 
+bool is_field_start(TokenKind kind) {
+    switch (kind) {
+        case TokenKind::name:
+        case TokenKind::keyword_pub:
+            return true;
+        default:
+            return false;
+    }
+}
+
 }  // namespace
 
 Parser::Parser(TokenStream stream,
@@ -277,32 +287,27 @@ TypeExpr* Parser::parse_type_name() {
 }
 
 bool Parser::parse_pub(bool allow_pub) {
-    if (!stream_.match(TokenKind::keyword_pub)) {
-        return false;
-    }
-    if (!allow_pub) {
+    bool got_pub = stream_.match(TokenKind::keyword_pub);
+    if (got_pub && !allow_pub) {
         diagnostic_emitter_.emit(Diagnostic{
             .message = "public modifier is not allowed here",
         });
     }
-    return true;
+    return got_pub;
 }
 
-std::optional<Field> Parser::parse_field(bool require_name, bool allow_pub) {
-    bool pub = parse_pub(allow_pub);
+std::optional<Field> Parser::parse_field() {
+    bool pub = parse_pub(true);
 
-    std::optional<std::string_view> name;
-    if (require_name || stream_.kind() == TokenKind::name) {
-        name = parse_name();
-        if (!name) {
-            return std::nullopt;
-        }
+    auto name = parse_name();
+    if (!name) {
+        return std::nullopt;
     }
 
-    bool missing_colon = name && !stream_.match(TokenKind::colon);
+    bool got_colon = stream_.match(TokenKind::colon);
 
     auto type = parse_type_expr();
-    if (type && missing_colon) {
+    if (type && !got_colon) {
         diagnostic_emitter_.emit(Diagnostic{
             .message = "expected :",
         });
@@ -321,6 +326,92 @@ std::optional<Field> Parser::parse_field(bool require_name, bool allow_pub) {
     };
 }
 
+std::optional<Field> Parser::parse_param() {
+    parse_pub(false);
+
+    // Peek ahead to check if a name is a field name or a type name.
+    std::optional<std::string_view> name;
+    if (stream_.kind() == TokenKind::name &&
+        stream_.peek_kind(1) == TokenKind::colon) {
+        name = parse_name();
+        if (!name) {
+            return std::nullopt;
+        }
+        expect(TokenKind::colon);
+    }
+
+    auto type = parse_type_expr();
+    if (!type) {
+        diagnostic_emitter_.emit(Diagnostic{
+            .message = "expected field type",
+        });
+        return std::nullopt;
+    }
+
+    return Field{
+        .name = name,
+        .type = type,
+        .pub = true,
+    };
+}
+
+void Parser::parse_field_separator() {
+    if (!stream_.match(TokenKind::comma) && is_field_start(stream_.kind())) {
+        diagnostic_emitter_.emit(
+            Diagnostic{.message = "expected field separator ,"});
+    }
+}
+
+std::optional<std::span<Field>> Parser::parse_fields() {
+    if (!expect(TokenKind::brace_left)) {
+        return std::nullopt;
+    }
+
+    std::vector<Field> fields;
+    while (is_field_start(stream_.kind())) {
+        auto field = parse_field();
+        if (field) {
+            fields.push_back(*field);
+        } else {
+            stream_.skip_until({
+                TokenKind::brace_right,
+                TokenKind::semicolon,
+                TokenKind::comma,
+            });
+        }
+        parse_field_separator();
+    }
+
+    expect(TokenKind::brace_right);
+
+    return tree_.arena.copy<Field>(fields);
+}
+
+std::optional<std::span<Field>> Parser::parse_params() {
+    if (!expect(TokenKind::bracket_left)) {
+        return std::nullopt;
+    }
+
+    std::vector<Field> fields;
+    while (is_field_start(stream_.kind())) {
+        auto field = parse_param();
+        if (field) {
+            fields.push_back(*field);
+        } else {
+            stream_.skip_until({
+                TokenKind::bracket_right,
+                TokenKind::semicolon,
+                TokenKind::comma,
+            });
+        }
+        parse_field_separator();
+    }
+
+    expect(TokenKind::bracket_right);
+
+    return tree_.arena.copy<Field>(fields);
+}
+
 Item* Parser::parse_struct() {
     if (!expect(TokenKind::keyword_struct)) {
         return nullptr;
@@ -332,6 +423,8 @@ Item* Parser::parse_struct() {
     }
 
     switch (stream_.kind()) {
+        case TokenKind::bracket_left:
+            return parse_bracket_struct_body(*name);
         case TokenKind::brace_left:
             return parse_brace_struct_body(*name);
         default:
@@ -347,30 +440,31 @@ Item* Parser::parse_unit_struct_body(std::string_view name) {
     });
 }
 
-Item* Parser::parse_brace_struct_body(std::string_view name) {
-    if (!expect(TokenKind::brace_left)) {
+Item* Parser::parse_bracket_struct_body(std::string_view name) {
+    auto fields = parse_params();
+    if (!fields) {
         return nullptr;
     }
 
-    std::vector<Field> fields;
+    expect(TokenKind::semicolon);
 
-    while (!stream_.done() && stream_.kind() != TokenKind::brace_right) {
-        auto field = parse_field(true, true);
-        if (field) {
-            fields.push_back(*field);
-            expect(TokenKind::comma);
-        } else {
-            stream_.skip_until({TokenKind::brace_right, TokenKind::comma});
-            stream_.skip(TokenKind::comma);
-        }
+    return make<Item>(Struct{
+        .name = name,
+        .kind = StructKind::bracket,
+        .fields = *fields,
+    });
+}
+
+Item* Parser::parse_brace_struct_body(std::string_view name) {
+    auto fields = parse_fields();
+    if (!fields) {
+        return nullptr;
     }
-
-    expect(TokenKind::brace_right);
 
     return make<Item>(Struct{
         .name = name,
         .kind = StructKind::brace,
-        .fields = tree_.arena.copy<Field>(fields),
+        .fields = *fields,
     });
 }
 
