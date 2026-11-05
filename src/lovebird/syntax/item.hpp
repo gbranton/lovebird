@@ -44,6 +44,7 @@ struct EnumDecl {
 struct FunctionDecl {
     std::string_view name;
     std::span<FieldDecl> params;
+    TypeExpr* return_type = nullptr;
     Expr* body = nullptr;
 };
 
