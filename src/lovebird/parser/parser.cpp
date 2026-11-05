@@ -281,7 +281,7 @@ Expr* Parser::parse_block() {
     expect(TokenKind::brace_right);
 
     return make<Expr>(Block{
-        .statements = tree_.arena.copy<Stmt*>(stmts),
+        .statements = copy_span<Stmt*>(stmts),
     });
 }
 
@@ -393,7 +393,7 @@ std::optional<std::span<FieldDecl>> Parser::parse_fields() {
 
     expect(TokenKind::brace_right);
 
-    return tree_.arena.copy<FieldDecl>(fields);
+    return copy_span<FieldDecl>(fields);
 }
 
 std::optional<std::span<FieldDecl>> Parser::parse_params() {
@@ -418,7 +418,7 @@ std::optional<std::span<FieldDecl>> Parser::parse_params() {
 
     expect(TokenKind::bracket_right);
 
-    return tree_.arena.copy<FieldDecl>(fields);
+    return copy_span<FieldDecl>(fields);
 }
 
 Item* Parser::parse_struct() {
@@ -516,7 +516,7 @@ std::optional<std::span<EnumCaseDecl>> Parser::parse_enum_cases() {
 
     expect(TokenKind::brace_right);
 
-    return tree_.arena.copy<EnumCaseDecl>(cases);
+    return copy_span<EnumCaseDecl>(cases);
 }
 
 std::optional<EnumCaseDecl> Parser::parse_enum_case() {

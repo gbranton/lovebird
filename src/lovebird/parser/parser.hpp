@@ -37,6 +37,11 @@ private:
         return tree_.arena.make<T>(std::forward<Args>(args)...);
     }
 
+    template <class T>
+    std::span<T> copy_span(std::span<const T> src) {
+        return tree_.arena.copy<T>(src);
+    }
+
     const Token* expect(TokenKind);
 
     std::optional<std::string_view> parse_name();
