@@ -312,7 +312,7 @@ void Parser::parse_separator(std::string_view separator_type) {
     }
 }
 
-std::optional<Field> Parser::parse_field() {
+std::optional<FieldDecl> Parser::parse_field() {
     bool pub = parse_pub(true);
 
     auto name = parse_name();
@@ -335,14 +335,14 @@ std::optional<Field> Parser::parse_field() {
         return std::nullopt;
     }
 
-    return Field{
+    return FieldDecl{
         .name = name,
         .type = type,
         .pub = pub,
     };
 }
 
-std::optional<Field> Parser::parse_param() {
+std::optional<FieldDecl> Parser::parse_param() {
     parse_pub(false);
 
     // Peek ahead to check if a name is a field name or a type name.
@@ -364,19 +364,19 @@ std::optional<Field> Parser::parse_param() {
         return std::nullopt;
     }
 
-    return Field{
+    return FieldDecl{
         .name = name,
         .type = type,
         .pub = true,
     };
 }
 
-std::optional<std::span<Field>> Parser::parse_fields() {
+std::optional<std::span<FieldDecl>> Parser::parse_fields() {
     if (!expect(TokenKind::brace_left)) {
         return std::nullopt;
     }
 
-    std::vector<Field> fields;
+    std::vector<FieldDecl> fields;
     while (is_field_start(stream_.kind())) {
         auto field = parse_field();
         if (field) {
@@ -393,15 +393,15 @@ std::optional<std::span<Field>> Parser::parse_fields() {
 
     expect(TokenKind::brace_right);
 
-    return tree_.arena.copy<Field>(fields);
+    return tree_.arena.copy<FieldDecl>(fields);
 }
 
-std::optional<std::span<Field>> Parser::parse_params() {
+std::optional<std::span<FieldDecl>> Parser::parse_params() {
     if (!expect(TokenKind::bracket_left)) {
         return std::nullopt;
     }
 
-    std::vector<Field> fields;
+    std::vector<FieldDecl> fields;
     while (is_field_start(stream_.kind())) {
         auto field = parse_param();
         if (field) {
@@ -418,7 +418,7 @@ std::optional<std::span<Field>> Parser::parse_params() {
 
     expect(TokenKind::bracket_right);
 
-    return tree_.arena.copy<Field>(fields);
+    return tree_.arena.copy<FieldDecl>(fields);
 }
 
 Item* Parser::parse_struct() {
@@ -443,7 +443,7 @@ Item* Parser::parse_struct() {
 
 Item* Parser::parse_unit_struct_body(std::string_view name) {
     expect(TokenKind::semicolon);
-    return make<Item>(Struct{
+    return make<Item>(StructDecl{
         .name = name,
         .kind = StructKind::unit,
     });
@@ -457,7 +457,7 @@ Item* Parser::parse_bracket_struct_body(std::string_view name) {
 
     expect(TokenKind::semicolon);
 
-    return make<Item>(Struct{
+    return make<Item>(StructDecl{
         .name = name,
         .kind = StructKind::bracket,
         .fields = *fields,
@@ -470,7 +470,7 @@ Item* Parser::parse_brace_struct_body(std::string_view name) {
         return nullptr;
     }
 
-    return make<Item>(Struct{
+    return make<Item>(StructDecl{
         .name = name,
         .kind = StructKind::brace,
         .fields = *fields,
@@ -492,18 +492,18 @@ Item* Parser::parse_enum() {
         return nullptr;
     }
 
-    return make<Item>(Enum{
+    return make<Item>(EnumDecl{
         .name = *name,
         .cases = *cases,
     });
 }
 
-std::optional<std::span<EnumCase>> Parser::parse_enum_cases() {
+std::optional<std::span<EnumCaseDecl>> Parser::parse_enum_cases() {
     if (!expect(TokenKind::brace_left)) {
         return std::nullopt;
     }
 
-    std::vector<EnumCase> cases;
+    std::vector<EnumCaseDecl> cases;
     while (stream_.at(TokenKind::name)) {
         auto enum_case = parse_enum_case();
         if (enum_case) {
@@ -516,16 +516,16 @@ std::optional<std::span<EnumCase>> Parser::parse_enum_cases() {
 
     expect(TokenKind::brace_right);
 
-    return tree_.arena.copy<EnumCase>(cases);
+    return tree_.arena.copy<EnumCaseDecl>(cases);
 }
 
-std::optional<EnumCase> Parser::parse_enum_case() {
+std::optional<EnumCaseDecl> Parser::parse_enum_case() {
     auto name = parse_name();
     if (!name) {
         return std::nullopt;
     }
 
-    std::optional<std::span<Field>> fields;
+    std::optional<std::span<FieldDecl>> fields;
     if (stream_.kind() == TokenKind::bracket_left) {
         fields = parse_params();
         if (!fields) {
@@ -533,9 +533,9 @@ std::optional<EnumCase> Parser::parse_enum_case() {
         }
     }
 
-    return EnumCase{
+    return EnumCaseDecl{
         .name = *name,
-        .fields = fields.value_or(std::span<Field>{}),
+        .fields = fields.value_or(std::span<FieldDecl>{}),
     };
 }
 

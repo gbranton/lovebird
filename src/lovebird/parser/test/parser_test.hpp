@@ -173,7 +173,7 @@ protected:
         return make_type_expr(Name{.value = value});
     }
 
-    Field field(std::optional<std::string_view> name, TypeExpr* type) {
+    FieldDecl field(std::optional<std::string_view> name, TypeExpr* type) {
         return {
             .name = name,
             .type = type,
@@ -181,7 +181,7 @@ protected:
         };
     }
 
-    Field pub_field(std::optional<std::string_view> name, TypeExpr* type) {
+    FieldDecl pub_field(std::optional<std::string_view> name, TypeExpr* type) {
         return {
             .name = name,
             .type = type,
@@ -190,43 +190,47 @@ protected:
     }
 
     Item* unit_struct(std::string_view name) {
-        return make_item(Struct{
+        return make_item(StructDecl{
             .name = name,
             .kind = StructKind::unit,
         });
     }
 
-    Item* bracket_struct(std::string_view name, std::span<const Field> fields) {
-        return make_item(Struct{
+    Item* bracket_struct(std::string_view name,
+                         std::span<const FieldDecl> fields) {
+        return make_item(StructDecl{
             .name = name,
             .kind = StructKind::bracket,
-            .fields = tree_.arena.copy<Field>(fields),
+            .fields = tree_.arena.copy<FieldDecl>(fields),
         });
     }
 
-    Item* brace_struct(std::string_view name, std::span<const Field> fields) {
-        return make_item(Struct{
+    Item* brace_struct(std::string_view name,
+                       std::span<const FieldDecl> fields) {
+        return make_item(StructDecl{
             .name = name,
             .kind = StructKind::brace,
-            .fields = tree_.arena.copy<Field>(fields),
+            .fields = tree_.arena.copy<FieldDecl>(fields),
         });
     }
 
-    EnumCase enum_case(std::string_view name) {
+    EnumCaseDecl enum_case(std::string_view name) {
         return {.name = name};
     }
 
-    EnumCase enum_case(std::string_view name, std::span<const Field> fields) {
+    EnumCaseDecl enum_case(std::string_view name,
+                           std::span<const FieldDecl> fields) {
         return {
             .name = name,
-            .fields = tree_.arena.copy<Field>(fields),
+            .fields = tree_.arena.copy<FieldDecl>(fields),
         };
     }
 
-    Item* enum_decl(std::string_view name, std::span<const EnumCase> cases) {
-        return make_item(Enum{
+    Item* enum_decl(std::string_view name,
+                    std::span<const EnumCaseDecl> cases) {
+        return make_item(EnumDecl{
             .name = name,
-            .cases = tree_.arena.copy<EnumCase>(cases),
+            .cases = tree_.arena.copy<EnumCaseDecl>(cases),
         });
     }
 

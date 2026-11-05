@@ -13,7 +13,7 @@ namespace lovebird {
 struct Expr;
 struct TypeExpr;
 
-struct Field {
+struct FieldDecl {
     std::optional<std::string_view> name;
     TypeExpr* type = nullptr;
     bool pub = false;
@@ -25,29 +25,29 @@ enum class StructKind {
     brace,
 };
 
-struct Struct {
+struct StructDecl {
     std::string_view name;
     StructKind kind = StructKind::unit;
-    std::span<Field> fields;
+    std::span<FieldDecl> fields;
 };
 
-struct EnumCase {
+struct EnumCaseDecl {
     std::string_view name;
-    std::span<Field> fields;
+    std::span<FieldDecl> fields;
 };
 
-struct Enum {
+struct EnumDecl {
     std::string_view name;
-    std::span<EnumCase> cases;
+    std::span<EnumCaseDecl> cases;
 };
 
-struct Function {
+struct FunctionDecl {
     std::string_view name;
-    std::span<Field> params;
+    std::span<FieldDecl> params;
     Expr* body = nullptr;
 };
 
-using ItemVariant = std::variant<Struct, Enum, Function>;
+using ItemVariant = std::variant<StructDecl, EnumDecl, FunctionDecl>;
 
 struct Item : ItemVariant {
     SourceSpan span;

@@ -101,7 +101,7 @@ void expect_equal(const Item& actual, const Item& expected) {
     expect_node_variants_equal(actual, expected);
 }
 
-void expect_equal(const Field& actual, const Field& expected) {
+void expect_equal(const FieldDecl& actual, const FieldDecl& expected) {
     SCOPED_TRACE(std::format("field {}", expected.name.value_or("(unnamed)")));
 
     EXPECT_EQ(actual.name, expected.name);
@@ -109,7 +109,7 @@ void expect_equal(const Field& actual, const Field& expected) {
     expect_not_null_and_equal(actual.type, expected.type);
 }
 
-void expect_equal(const Struct& actual, const Struct& expected) {
+void expect_equal(const StructDecl& actual, const StructDecl& expected) {
     SCOPED_TRACE(std::format("struct {}", expected.name));
 
     EXPECT_EQ(actual.name, expected.name);
@@ -117,21 +117,21 @@ void expect_equal(const Struct& actual, const Struct& expected) {
     expect_spans_equal(actual.fields, expected.fields);
 }
 
-void expect_equal(const EnumCase& actual, const EnumCase& expected) {
+void expect_equal(const EnumCaseDecl& actual, const EnumCaseDecl& expected) {
     SCOPED_TRACE(std::format("enum case {}", expected.name));
 
     EXPECT_EQ(actual.name, expected.name);
     expect_spans_equal(actual.fields, expected.fields);
 }
 
-void expect_equal(const Enum& actual, const Enum& expected) {
+void expect_equal(const EnumDecl& actual, const EnumDecl& expected) {
     SCOPED_TRACE(std::format("enum {}", expected.name));
 
     EXPECT_EQ(actual.name, expected.name);
     expect_spans_equal(actual.cases, expected.cases);
 }
 
-void expect_equal(const Function& actual, const Function& expected) {
+void expect_equal(const FunctionDecl& actual, const FunctionDecl& expected) {
     SCOPED_TRACE(std::format("function {}", expected.name));
 
     EXPECT_EQ(actual.name, expected.name);

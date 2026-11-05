@@ -60,11 +60,11 @@ private:
 
     void parse_separator(std::string_view separator_type);
 
-    std::optional<Field> parse_field();
-    std::optional<Field> parse_param();
+    std::optional<FieldDecl> parse_field();
+    std::optional<FieldDecl> parse_param();
 
-    std::optional<std::span<Field>> parse_fields();
-    std::optional<std::span<Field>> parse_params();
+    std::optional<std::span<FieldDecl>> parse_fields();
+    std::optional<std::span<FieldDecl>> parse_params();
 
     Item* parse_struct();
     Item* parse_unit_struct_body(std::string_view name);
@@ -72,8 +72,8 @@ private:
     Item* parse_brace_struct_body(std::string_view name);
 
     Item* parse_enum();
-    std::optional<std::span<EnumCase>> parse_enum_cases();
-    std::optional<EnumCase> parse_enum_case();
+    std::optional<std::span<EnumCaseDecl>> parse_enum_cases();
+    std::optional<EnumCaseDecl> parse_enum_case();
 };
 
 }  // namespace lovebird
