@@ -42,6 +42,8 @@ private:
         return tree_.arena.copy<T>(src);
     }
 
+    void emit_error(std::string_view message);
+
     const Token* expect(TokenKind);
 
     std::optional<std::string_view> parse_name();

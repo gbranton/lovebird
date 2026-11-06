@@ -3,6 +3,8 @@
 #include <format>
 #include <optional>
 #include <span>
+#include <string>
+#include <string_view>
 #include <utility>
 
 #include "lovebird/diagnostic/diagnostic.hpp"
@@ -120,12 +122,14 @@ Stmt* Parser::parse_stmt() {
     return make<Stmt>(ExprStmt{.expr = expr});
 }
 
+void Parser::emit_error(std::string_view message) {
+    diagnostic_emitter_.emit(Diagnostic{.message = std::string{message}});
+}
+
 const Token* Parser::expect(TokenKind kind) {
     auto* tok = stream_.match(kind);
     if (!tok) {
-        diagnostic_emitter_.emit(Diagnostic{
-            .message = std::format("expected {}", kind),
-        });
+        emit_error(std::format("expected {}", kind));
     }
     return tok;
 }
@@ -146,9 +150,7 @@ Expr* Parser::parse_unary_operator() {
 
     auto* right = parse_unary_operator();
     if (!right) {
-        diagnostic_emitter_.emit(Diagnostic{
-            .message = "missing operand for unary operator",
-        });
+        emit_error("missing operand for unary operator");
         return nullptr;
     }
 
@@ -172,9 +174,7 @@ Expr* Parser::parse_binary_operator(int min_prec) {
 
         auto* right = parse_binary_operator(next_prec);
         if (!right) {
-            diagnostic_emitter_.emit(Diagnostic{
-                .message = "missing operand for binary operator",
-            });
+            emit_error("missing operand for binary operator");
             break;
         }
 
@@ -237,9 +237,7 @@ Expr* Parser::parse_name_expr() {
 Expr* Parser::parse_literal() {
     auto lit_kind = to_literal_kind(stream_.kind());
     if (!lit_kind) {
-        diagnostic_emitter_.emit(Diagnostic{
-            .message = "expected literal",
-        });
+        emit_error("expected literal");
         return nullptr;
     }
 
@@ -299,18 +297,14 @@ TypeExpr* Parser::parse_type_name() {
 bool Parser::parse_pub(bool allow_pub) {
     bool got_pub = stream_.match(TokenKind::keyword_pub);
     if (got_pub && !allow_pub) {
-        diagnostic_emitter_.emit(Diagnostic{
-            .message = "public modifier is not allowed here",
-        });
+        emit_error("public modifier is not allowed here");
     }
     return got_pub;
 }
 
 void Parser::parse_separator(std::string_view separator_type) {
     if (!stream_.match(TokenKind::comma) && is_field_start(stream_.kind())) {
-        diagnostic_emitter_.emit(Diagnostic{
-            .message = std::format("expected {} separator ,", separator_type),
-        });
+        emit_error(std::format("expected {} separator ,", separator_type));
     }
 }
 
@@ -326,14 +320,10 @@ std::optional<FieldDecl> Parser::parse_field() {
 
     auto type = parse_type_expr();
     if (type && !got_colon) {
-        diagnostic_emitter_.emit(Diagnostic{
-            .message = "expected :",
-        });
+        emit_error("expected :");
     }
     if (!type) {
-        diagnostic_emitter_.emit(Diagnostic{
-            .message = "expected field type",
-        });
+        emit_error("expected field type");
         return std::nullopt;
     }
 
@@ -360,9 +350,7 @@ std::optional<FieldDecl> Parser::parse_param() {
 
     auto type = parse_type_expr();
     if (!type) {
-        diagnostic_emitter_.emit(Diagnostic{
-            .message = "expected field type",
-        });
+        emit_error("expected field type");
         return std::nullopt;
     }
 
@@ -586,9 +574,7 @@ Expr* Parser::parse_function_body() {
             return parse_function_expression_body();
         }
         default:
-            diagnostic_emitter_.emit(Diagnostic{
-                .message = "expected function body",
-            });
+            emit_error("expected function body");
             return nullptr;
     }
 }
@@ -598,9 +584,7 @@ Expr* Parser::parse_function_expression_body() {
 
     auto* body = parse_expr();
     if (!body) {
-        diagnostic_emitter_.emit(Diagnostic{
-            .message = "expected function body",
-        });
+        emit_error("expected function body");
         return nullptr;
     }
 
