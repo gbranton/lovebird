@@ -79,6 +79,11 @@ private:
     Item* parse_enum();
     std::optional<std::span<EnumCaseDecl>> parse_enum_cases();
     std::optional<EnumCaseDecl> parse_enum_case();
+
+    Item* parse_function();
+    TypeExpr* parse_return_type();
+    Expr* parse_function_body();
+    Expr* parse_function_expression_body();
 };
 
 }  // namespace lovebird

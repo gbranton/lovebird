@@ -105,6 +105,8 @@ Item* Parser::parse_item() {
             return parse_struct();
         case TokenKind::keyword_enum:
             return parse_enum();
+        case TokenKind::keyword_fn:
+            return parse_function();
         default:
             return nullptr;
     }
@@ -537,6 +539,74 @@ std::optional<EnumCaseDecl> Parser::parse_enum_case() {
         .name = *name,
         .fields = fields.value_or(std::span<FieldDecl>{}),
     };
+}
+
+Item* Parser::parse_function() {
+    if (!expect(TokenKind::keyword_fn)) {
+        return nullptr;
+    }
+
+    auto name = parse_name();
+    if (!name) {
+        return nullptr;
+    }
+
+    auto params = parse_params();
+    if (!params) {
+        return nullptr;
+    }
+
+    auto* return_type = parse_return_type();
+
+    auto* body = parse_function_body();
+    if (!body) {
+        return nullptr;
+    }
+
+    return make<Item>(FunctionDecl{
+        .name = *name,
+        .params = *params,
+        .return_type = return_type,
+        .body = body,
+    });
+}
+
+TypeExpr* Parser::parse_return_type() {
+    if (!stream_.match(TokenKind::arrow)) {
+        return nullptr;
+    }
+    return parse_type_expr();
+}
+
+Expr* Parser::parse_function_body() {
+    switch (stream_.kind()) {
+        case TokenKind::brace_left:
+            return parse_block();
+        case TokenKind::equal: {
+            return parse_function_expression_body();
+        }
+        default:
+            diagnostic_emitter_.emit(Diagnostic{
+                .message = "expected function body",
+            });
+            return nullptr;
+    }
+}
+
+Expr* Parser::parse_function_expression_body() {
+    expect(TokenKind::equal);
+
+    auto* body = parse_expr();
+    if (!body) {
+        diagnostic_emitter_.emit(Diagnostic{
+            .message = "expected function body",
+        });
+        return nullptr;
+    }
+
+    expect(TokenKind::semicolon);
+
+    return body;
 }
 
 }  // namespace lovebird

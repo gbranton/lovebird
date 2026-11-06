@@ -136,7 +136,12 @@ void expect_equal(const FunctionDecl& actual, const FunctionDecl& expected) {
 
     EXPECT_EQ(actual.name, expected.name);
     expect_spans_equal(actual.params, expected.params);
-    expect_not_null_and_equal(actual.return_type, expected.return_type);
+
+    EXPECT_EQ(actual.return_type == nullptr, expected.return_type == nullptr);
+    if (actual.return_type && expected.return_type) {
+        expect_equal(*actual.return_type, *expected.return_type);
+    }
+
     expect_not_null_and_equal(actual.body, expected.body);
 }
 

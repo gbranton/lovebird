@@ -234,6 +234,18 @@ protected:
         });
     }
 
+    Item* function(std::string_view name,
+                   std::span<const FieldDecl> params,
+                   TypeExpr* return_type,
+                   Expr* body) {
+        return make_item(FunctionDecl{
+            .name = name,
+            .params = tree_.arena.copy<FieldDecl>(params),
+            .return_type = return_type,
+            .body = body,
+        });
+    }
+
     Stmt* expr_stmt(Expr* expr) {
         return make_stmt(ExprStmt{.expr = expr});
     }

@@ -313,6 +313,94 @@ TEST_F(ParserTest, ParseEnumMissingComma) {
     });
 }
 
+TEST_F(ParserTest, ParseFunction) {
+    std::string_view source = R"(
+        fn main[arg: String] -> int {
+            123
+        }
+    )";
+    auto* expected = function("main",
+                              {pub_field("arg", type_name("String"))},
+                              type_name("int"),
+                              block({expr_stmt(int_lit("123"))}));
+    parse_item_and_expect_tree(source, expected);
+    expect_no_diagnostics();
+}
+
+TEST_F(ParserTest, ParseFunctionNoReturnType) {
+    std::string_view source = R"(
+        fn main[arg: String] {
+            123
+        }
+    )";
+    auto* expected = function("main",
+                              {pub_field("arg", type_name("String"))},
+                              nullptr,
+                              block({expr_stmt(int_lit("123"))}));
+    parse_item_and_expect_tree(source, expected);
+    expect_no_diagnostics();
+}
+
+TEST_F(ParserTest, ParseFunctionEmptyBlock) {
+    std::string_view source = R"(
+        fn main[arg: String] -> int {}
+    )";
+    auto* expected = function("main",
+                              {pub_field("arg", type_name("String"))},
+                              type_name("int"),
+                              block({}));
+    parse_item_and_expect_tree(source, expected);
+    expect_no_diagnostics();
+}
+
+TEST_F(ParserTest, ParseFunctionExpressionBody) {
+    std::string_view source = R"(
+        fn main[arg: String] -> int = 123;
+    )";
+    auto* expected = function("main",
+                              {pub_field("arg", type_name("String"))},
+                              type_name("int"),
+                              int_lit("123"));
+    parse_item_and_expect_tree(source, expected);
+    expect_no_diagnostics();
+}
+
+TEST_F(ParserTest, ParseFunctionMissingName) {
+    std::string_view source = R"(
+        fn [arg: String] -> int {
+            123
+        }
+    )";
+    parse_item_and_expect_null(source);
+    expect_diagnostics({Diagnostic{.message = "expected name"}});
+}
+
+TEST_F(ParserTest, ParseFunctionMissingParams) {
+    std::string_view source = R"(
+        fn main -> int {
+            123
+        }
+    )";
+    parse_item_and_expect_null(source);
+    expect_diagnostics({Diagnostic{.message = "expected ["}});
+}
+
+TEST_F(ParserTest, ParseFunctionMissingBody) {
+    std::string_view source = R"(
+        fn main[arg: String] -> int
+    )";
+    parse_item_and_expect_null(source);
+    expect_diagnostics({Diagnostic{.message = "expected function body"}});
+}
+
+TEST_F(ParserTest, ParseFunctionMissingExpressionBody) {
+    std::string_view source = R"(
+        fn main[arg: String] -> int = ;
+    )";
+    parse_item_and_expect_null(source);
+    expect_diagnostics({Diagnostic{.message = "expected function body"}});
+}
+
 }  // namespace
 
 }  // namespace lovebird
