@@ -1,9 +1,7 @@
 #ifndef LOVEBIRD_SYNTAX_TEST_EQUAL_HPP
 #define LOVEBIRD_SYNTAX_TEST_EQUAL_HPP
 
-#include "lovebird/syntax/expr.hpp"
-#include "lovebird/syntax/item.hpp"
-#include "lovebird/syntax/stmt.hpp"
+#include "lovebird/syntax/ast.hpp"
 
 namespace lovebird {
 

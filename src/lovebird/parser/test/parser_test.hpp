@@ -16,9 +16,7 @@
 #include "lovebird/parser/lexer.hpp"
 #include "lovebird/parser/parser.hpp"
 #include "lovebird/parser/token_stream.hpp"
-#include "lovebird/syntax/expr.hpp"
-#include "lovebird/syntax/item.hpp"
-#include "lovebird/syntax/syntax_tree.hpp"
+#include "lovebird/syntax/ast.hpp"
 #include "lovebird/syntax/test/equal.hpp"
 #include "lovebird/syntax/token.hpp"
 

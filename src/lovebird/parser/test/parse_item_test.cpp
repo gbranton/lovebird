@@ -6,7 +6,7 @@
 
 #include <gtest/gtest.h>
 
-#include "lovebird/syntax/item.hpp"
+#include "lovebird/syntax/ast.hpp"
 
 namespace lovebird {
 
